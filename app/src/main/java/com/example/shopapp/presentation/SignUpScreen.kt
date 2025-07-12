@@ -188,7 +188,7 @@ fun SignUpScreen() {
             Spacer(modifier = Modifier.size(8.dp))
             Text(
                 text = "SignUp with Google",
-                color = colorResource(R.color.black)
+//                color = colorResource(R.color.black)
             )
         }
     }
