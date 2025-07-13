@@ -89,4 +89,6 @@ dependencies {
 
 
     //custom bottom nev bar  implementation("com.canopas.compose-animated-navigationbar:bottombar:1.0.1")
+
+    implementation(project(":shared"))
 }
