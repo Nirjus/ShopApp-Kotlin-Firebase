@@ -12,8 +12,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 class DomainModule {
 
-    @Provides
-    fun provideRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore): Repo{
-        return RepoImpl(firebaseAuth, firebaseFirestore)
-    }
+//    @Provides
+//    fun provideRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore): Repo{
+//        return RepoImpl(firebaseAuth, firebaseFirestore)
+//    }
 }
