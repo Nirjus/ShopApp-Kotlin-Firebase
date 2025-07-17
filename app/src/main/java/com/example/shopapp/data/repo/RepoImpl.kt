@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 class RepoImpl @Inject constructor(
-
     var firebaseAuth: FirebaseAuth,
     var firebaseFirestore: FirebaseFirestore
 ) : Repo {
