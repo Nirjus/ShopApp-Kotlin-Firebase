@@ -85,5 +85,7 @@ dependencies {
     //custom bottom nev bar
     implementation("com.canopas.compose-animated-navigationbar:bottombar:1.0.1")
     // AWS SDK
-//    implementation(awssdk.service.s3)
+    implementation("com.amazonaws:aws-android-sdk-s3:2.73.0")
+    implementation("com.amazonaws:aws-android-sdk-core:2.73.0")
+    implementation("com.amazonaws:aws-android-sdk-mobile-client:2.73.0")
 }
