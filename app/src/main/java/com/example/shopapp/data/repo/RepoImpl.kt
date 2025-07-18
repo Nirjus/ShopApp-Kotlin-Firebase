@@ -3,6 +3,7 @@ package com.example.shopapp.data.repo
 import android.net.Uri
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.common.USER_COLLECTION
+import com.example.shopapp.data.di.AWSHelper
 import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.domain.models.CartDataModels
 import com.example.shopapp.domain.models.CategoryDataModel
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 class RepoImpl @Inject constructor(
     var firebaseAuth: FirebaseAuth,
-    var firebaseFirestore: FirebaseFirestore
+    var firebaseFirestore: FirebaseFirestore,
+    private val awsHelper: AWSHelper
 ) : Repo {
     override fun registerUserWithEmailAndPassword(userData: UserData): Flow<ResultState<String>> =
         callbackFlow {
@@ -96,8 +98,32 @@ class RepoImpl @Inject constructor(
 
     override fun updateUserProfileImage(uri: Uri): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
+        try {
+            val userId = firebaseAuth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val objectKey = "profile_images/$userId/${System.currentTimeMillis()}"
 
-
+            uploadFileToS3(uri.path!!, objectKey).collect { result ->
+                when(result) {
+                    is ResultState.Success -> {
+                        // Update user profile with S3 URL
+                        firebaseFirestore.collection(USER_COLLECTION)
+                            .document(userId)
+                            .update("profileImage", result.data)
+                            .addOnSuccessListener {
+                                trySend(ResultState.Success(result.data))
+                            }
+                            .addOnFailureListener { e ->
+                                trySend(ResultState.Error(e.message ?: "Failed to update profile"))
+                            }
+                    }
+                    is ResultState.Error -> trySend(ResultState.Error(result.message))
+                    is ResultState.Loading -> trySend(ResultState.Loading)
+                }
+            }
+        } catch (e: Exception) {
+            trySend(ResultState.Error(e.message ?: "Failed to update profile image"))
+        }
+        awaitClose { }
     }
 
     override fun getAllCategories(): Flow<ResultState<List<CategoryDataModel>>> {
@@ -150,5 +176,21 @@ class RepoImpl @Inject constructor(
 
     override fun getSpecificCategory(categoryName: String): Flow<ResultState<List<CategoryDataModel>>> {
         TODO("Not yet implemented")
+    }
+
+    suspend fun initializeAWS() {
+        awsHelper.initAWS()
+    }
+
+    fun uploadFileToS3(filePath: String, objectKey: String): Flow<ResultState<String>> {
+        return awsHelper.uploadFile(filePath, objectKey)
+    }
+
+    fun deleteFileFromS3(objectKey: String): Flow<ResultState<Boolean>> {
+        return awsHelper.deleteFile(objectKey)
+    }
+
+    fun getS3FileUrl(objectKey: String): String {
+        return awsHelper.getFileUrl(objectKey)
     }
 }
