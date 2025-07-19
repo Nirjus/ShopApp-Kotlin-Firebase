@@ -29,6 +29,6 @@ interface Repo {
     fun getAllCarts(): Flow<ResultState<List<CartDataModels>>>
     fun getCheckOut(productId: String): Flow<ResultState<ProductsDataModel>>
     fun getBanners(): Flow<ResultState<List<BannerDataModels>>>
-    fun getSpecificCategory(categoryName: String): Flow<ResultState<List<CategoryDataModel>>>
+    fun getSpecificCategory(categoryName: String): Flow<ResultState<List<ProductsDataModel>>>
 
 }

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ProductsDataModel(
 
-    val productId: String = "",
+    var productId: String = "",
     val name: String = "",
     val description: String = "",
     val price: String = "",
