@@ -355,85 +355,98 @@ class ShoppingAppViewModel @Inject constructor(
             }
         }
     }
+
     init {
         loadHomeScreenData()
     }
+
     fun loadHomeScreenData() {
         viewModelScope.launch {
             combine(
                 getCategoryInLimitUseCases.getCategoryInLimit(),
                 getProductInLimitUseCase.getProductInLimit(),
                 getBannerUseCase.getBannerUseCase()
-            ){ categoriesResult, productResult, bannerResult ->
-                    when{
-                        categoriesResult is ResultState.Error -> {
-                            HomeScreenState(isLoading = false, errorMessage = categoriesResult.message)
-                        }
-                        productResult is ResultState.Error -> {
-                            HomeScreenState(isLoading = false, errorMessage = productResult.message)
-                        }
-                        bannerResult is ResultState.Error -> {
-                            HomeScreenState(isLoading = false, errorMessage = bannerResult.message)
-                        }
-                        categoriesResult is ResultState.Success && productResult is ResultState.Success && bannerResult is ResultState.Success -> {
-                            HomeScreenState(
-                                isLoading = false,
-                                categories = categoriesResult.data,
-                                products = productResult.data,
-                                banners = bannerResult.data
-                            )
-                        }
-                        else -> {
-                            HomeScreenState(isLoading = true)
-                        }
+            ) { categoriesResult, productResult, bannerResult ->
+                when {
+                    categoriesResult is ResultState.Error -> {
+                        HomeScreenState(isLoading = false, errorMessage = categoriesResult.message)
                     }
-            }.collect {
-                state -> _homeScreenState.value = state
+
+                    productResult is ResultState.Error -> {
+                        HomeScreenState(isLoading = false, errorMessage = productResult.message)
+                    }
+
+                    bannerResult is ResultState.Error -> {
+                        HomeScreenState(isLoading = false, errorMessage = bannerResult.message)
+                    }
+
+                    categoriesResult is ResultState.Success && productResult is ResultState.Success && bannerResult is ResultState.Success -> {
+                        HomeScreenState(
+                            isLoading = false,
+                            categories = categoriesResult.data,
+                            products = productResult.data,
+                            banners = bannerResult.data
+                        )
+                    }
+
+                    else -> {
+                        HomeScreenState(isLoading = true)
+                    }
+                }
+            }.collect { state ->
+                _homeScreenState.value = state
             }
         }
     }
 
-    fun uploadUserProfileIMage(uri: Uri){
+    fun uploadUserProfileIMage(uri: Uri) {
         viewModelScope.launch {
             uploadUserProfileImageUseCase.updateUserProfileImage(uri).collect {
-                when(it){
+                when (it) {
                     is ResultState.Error -> {
-                        _uploadUserProfileImageState.value = _uploadUserProfileImageState.value.copy(
-                            isLoading = false,
-                            errorMessage = it.message
-                        )
+                        _uploadUserProfileImageState.value =
+                            _uploadUserProfileImageState.value.copy(
+                                isLoading = false,
+                                errorMessage = it.message
+                            )
                     }
+
                     is ResultState.Loading -> {
-                        _uploadUserProfileImageState.value = _uploadUserProfileImageState.value.copy(
-                            isLoading = true,
-                        )
+                        _uploadUserProfileImageState.value =
+                            _uploadUserProfileImageState.value.copy(
+                                isLoading = true,
+                            )
                     }
+
                     is ResultState.Success -> {
-                        _uploadUserProfileImageState.value = _uploadUserProfileImageState.value.copy(
-                            isLoading = false,
-                            userData = it.data
-                        )
+                        _uploadUserProfileImageState.value =
+                            _uploadUserProfileImageState.value.copy(
+                                isLoading = false,
+                                userData = it.data
+                            )
                     }
                 }
             }
         }
     }
 
-    fun upDateUserData(userDataParent: UserDataParent){
+    fun upDateUserData(userDataParent: UserDataParent) {
         viewModelScope.launch {
             updateUserUseCase.updateUserData(userDataParent).collect {
-                when(it){
+                when (it) {
                     is ResultState.Error -> {
                         _updateScreenState.value = _updateScreenState.value.copy(
                             isLoading = false,
                             errorMessage = it.message
                         )
                     }
+
                     is ResultState.Loading -> {
                         _updateScreenState.value = _updateScreenState.value.copy(
                             isLoading = true,
                         )
                     }
+
                     is ResultState.Success -> {
                         _updateScreenState.value = _updateScreenState.value.copy(
                             isLoading = false,
@@ -445,21 +458,23 @@ class ShoppingAppViewModel @Inject constructor(
         }
     }
 
-    fun createUser(userData: UserData){
+    fun createUser(userData: UserData) {
         viewModelScope.launch {
             createUserUseCase.createUser(userData).collect {
-                when(it){
+                when (it) {
                     is ResultState.Error -> {
                         _signUpScreenState.value = _signUpScreenState.value.copy(
                             isLoading = false,
                             errorMessage = it.message
                         )
                     }
+
                     is ResultState.Loading -> {
                         _signUpScreenState.value = _signUpScreenState.value.copy(
                             isLoading = true
                         )
                     }
+
                     is ResultState.Success -> {
                         _signUpScreenState.value = _signUpScreenState.value.copy(
                             isLoading = false,
@@ -471,21 +486,23 @@ class ShoppingAppViewModel @Inject constructor(
         }
     }
 
-    fun loginUser(userData: UserData){
+    fun loginUser(userData: UserData) {
         viewModelScope.launch {
             loginUserUseCase.loginUsers(userData).collect {
-                when(it){
+                when (it) {
                     is ResultState.Error -> {
                         _loginScreenState.value = _loginScreenState.value.copy(
                             isLoading = false,
                             errorMessage = it.message
                         )
                     }
+
                     is ResultState.Loading -> {
                         _loginScreenState.value = _loginScreenState.value.copy(
                             isLoading = true
                         )
                     }
+
                     is ResultState.Success -> {
                         _loginScreenState.value = _loginScreenState.value.copy(
                             isLoading = false,
@@ -497,6 +514,66 @@ class ShoppingAppViewModel @Inject constructor(
         }
     }
 
+    fun getUserById(userId: String) {
+        viewModelScope.launch {
+            gtUserUseCase.getUserByUserId(userId).collect {
+                when (it) {
+                    is ResultState.Error -> {
+                        _profileScreenState.value = _profileScreenState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+
+                    is ResultState.Loading -> {
+                        _profileScreenState.value = _profileScreenState.value.copy(
+                            isLoading = true
+                        )
+                    }
+
+                    is ResultState.Success -> {
+                        _profileScreenState.value = _profileScreenState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun getAllSuggestedProduct() {
+        viewModelScope.launch {
+            getAllSuggestedProductsUseCase.getAllSuggestiveProduct().collect {
+                when (it) {
+
+                    is ResultState.Error -> {
+                        _getAllSuggestedProductsState.value =
+                            _getAllSuggestedProductsState.value.copy(
+                                isLoading = false,
+                                errorMessage = it.message
+                            )
+                    }
+
+                    is ResultState.Loading -> {
+                        _getAllSuggestedProductsState.value =
+                            _getAllSuggestedProductsState.value.copy(
+                                isLoading = true
+                            )
+                    }
+
+                    is ResultState.Success -> {
+                        _getAllSuggestedProductsState.value =
+                            _getAllSuggestedProductsState.value.copy(
+                                isLoading = false,
+                                userData = it.data
+                            )
+                    }
+                }
+            }
+        }
+    }
+//    fun
 }
 
 data class ProfileScreenState(
