@@ -133,8 +133,8 @@ fun App(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-//                .padding(innerPadding)
-                .padding(bottom = if (shouldShowBottomBar.value) 60.dp else innerPadding.calculateTopPadding())
+                .padding(innerPadding)
+                .padding(bottom = if (shouldShowBottomBar.value) 60.dp else 0.dp)
         ) {
             NavHost(navController = navController, startDestination = startScreen) {
                 navigation<SubNavigation.LoginSignUpScreen>(startDestination = Routes.LoginScreen) {

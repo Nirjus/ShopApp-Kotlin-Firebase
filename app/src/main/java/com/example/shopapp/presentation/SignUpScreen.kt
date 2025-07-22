@@ -2,7 +2,6 @@ package com.example.shopapp.presentation
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,13 +36,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.shopapp.R
+import com.example.shopapp.domain.models.UserData
+import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.Navigation.SubNavigation
 import com.example.shopapp.presentation.utils.CustomTextField
 import com.example.shopapp.presentation.utils.SuccessAlertBox
@@ -150,9 +150,18 @@ fun SignUpScreen(navController: NavController, viewModel: ShoppingAppViewModel =
 
             Button(
                 onClick = {
-                    if (firstName.isNotEmpty() && lastName.isNotEmpty() && password.isNotEmpty() && email.isNotEmpty() && confirmPassword.isNotEmpty() && phoneNumber.isEmpty()) {
+                    if (firstName.isNotEmpty() && lastName.isNotEmpty() && password.isNotEmpty() && email.isNotEmpty() && confirmPassword.isNotEmpty() && phoneNumber.isNotEmpty()) {
 
                         if (password == confirmPassword) {
+                            val userData = UserData(
+                                firstName = firstName,
+                                lastName = lastName,
+                                email = email,
+                                password = password,
+                                phoneNumber = phoneNumber
+                            )
+                            viewModel.createUser(userData)
+
                             Toast.makeText(context, "Sign up successfully", Toast.LENGTH_SHORT)
                                 .show()
                         } else {
@@ -183,7 +192,7 @@ fun SignUpScreen(navController: NavController, viewModel: ShoppingAppViewModel =
 //     Already have an account
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Already have an account?")
-                TextButton(onClick = {}) {
+                TextButton(onClick = {navController.navigate(Routes.LoginScreen)}) {
                     Text("Login", style = TextStyle(color = colorResource(R.color.purple_300)))
                 }
             }

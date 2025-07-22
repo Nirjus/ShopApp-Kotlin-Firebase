@@ -42,6 +42,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.shopapp.R
+import com.example.shopapp.domain.models.UserData
+import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.Navigation.SubNavigation
 import com.example.shopapp.presentation.utils.CustomTextField
 import com.example.shopapp.presentation.utils.SuccessAlertBox
@@ -122,6 +124,11 @@ fun SignInScreenUI(
             Button(
                 onClick = {
                     if (email.isNotBlank() && password.isNotBlank()) {
+                        val userData = UserData(
+                            email=email,
+                            password = password,
+                        )
+                        viewModel.loginUser(userData)
                         Toast.makeText(context, "Sign in successful", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Please fill all the field", Toast.LENGTH_SHORT)
@@ -142,7 +149,7 @@ fun SignInScreenUI(
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Don't have any account?", fontSize = 15.sp)
-                TextButton(onClick = {}) {
+                TextButton(onClick = {navController.navigate(route = Routes.SignUpScreen)}) {
                     Text("SignUp", color = colorResource(R.color.purple_300), fontSize = 15.sp)
                 }
             }
