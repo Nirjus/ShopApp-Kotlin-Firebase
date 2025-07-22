@@ -27,14 +27,16 @@ class AWSHelper(private val context: Context) {
 
     suspend fun initAWS() = suspendCancellableCoroutine { continuation ->
         try {
-            AWSMobileClient.getInstance().initialize(context, object : Callback<UserStateDetails> {
+            // Load configuration from assets
+            awsConfiguration = AWSConfiguration(context)
+            AWSMobileClient.getInstance().initialize(context, awsConfiguration, object : Callback<UserStateDetails> {
                 override fun onResult(result: UserStateDetails) {
                     try {
-                        awsConfiguration = AWSConfiguration(context)
                         s3Client = AmazonS3Client(AWSMobileClient.getInstance() as AWSCredentialsProvider)
                         transferUtility = TransferUtility.builder()
                             .context(context)
                             .s3Client(s3Client)
+                            .awsConfiguration(awsConfiguration)
                             .build()
                         continuation.resume(Unit)
                     } catch (e: Exception) {

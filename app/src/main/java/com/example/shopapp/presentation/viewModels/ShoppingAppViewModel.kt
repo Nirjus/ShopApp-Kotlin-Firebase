@@ -12,13 +12,14 @@ import com.example.shopapp.domain.models.ProductsDataModel
 import com.example.shopapp.domain.models.UserData
 import com.example.shopapp.domain.models.UserDataParent
 import com.example.shopapp.domain.usecase.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
+@HiltViewModel
 class ShoppingAppViewModel @Inject constructor(
     private val createUserUseCase: CreateUser,
     private val loginUserUseCase: LoginUser,

@@ -174,6 +174,7 @@ class RepoImpl @Inject constructor(
         }.addOnFailureListener {
             trySend(ResultState.Error(it.toString()))
         }
+        awaitClose { close() }
     }
 
     override fun getAllProducts(): Flow<ResultState<List<ProductsDataModel>>> = callbackFlow {
