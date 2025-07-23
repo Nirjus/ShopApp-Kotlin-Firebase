@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.shopapp.R
+import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,9 +80,7 @@ fun CheckoutScreen(
     ) { innerPadding ->
         when {
             state.value.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
+                CircularIndicator()
             }
 
             state.value.errorMessage != null -> {

@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -45,6 +44,7 @@ import com.example.shopapp.R
 import com.example.shopapp.domain.models.UserData
 import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.Navigation.SubNavigation
+import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.utils.CustomTextField
 import com.example.shopapp.presentation.utils.SuccessAlertBox
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
@@ -63,9 +63,7 @@ fun SignUpScreen(navController: NavController, viewModel: ShoppingAppViewModel =
     var phoneNumber by remember { mutableStateOf("") }
 
     if (state.value.isLoading) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
+        CircularIndicator()
     } else if (state.value.errorMessage != null) {
         Box(modifier = Modifier.fillMaxSize()) {
             Text(text = state.value.errorMessage!!)

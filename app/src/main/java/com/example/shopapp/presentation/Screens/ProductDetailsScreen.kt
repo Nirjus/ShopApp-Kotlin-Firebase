@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +51,7 @@ import coil.compose.AsyncImage
 import com.example.shopapp.R
 import com.example.shopapp.domain.models.CartDataModels
 import com.example.shopapp.presentation.Navigation.Routes
+import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,9 +93,7 @@ fun ProductDetailsScreen(
     ) { innerPadding ->
         when {
             getProductById.value.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
+                CircularIndicator()
             }
 
             getProductById.value.errorMessage != null -> {
