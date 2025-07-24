@@ -1,13 +1,16 @@
 package com.example.shopapp.presentation.utils
 
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.shopapp.R
 
 @Composable
 fun CustomTextField(
@@ -25,6 +28,11 @@ fun CustomTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = colorResource(
+                id = R.color.purple_300
+            ), focusedBorderColor = colorResource(id = R.color.purple_200)
+        ),
         singleLine = singleLine,
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,

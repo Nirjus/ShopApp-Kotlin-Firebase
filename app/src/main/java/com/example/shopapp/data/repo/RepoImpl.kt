@@ -110,7 +110,7 @@ class RepoImpl @Inject constructor(
                         // Update user profile with S3 URL
                         firebaseFirestore.collection(USER_COLLECTION)
                             .document(userId)
-                            .update("profileImage", result.data)
+                            .update("image", result.data)
                             .addOnSuccessListener {
                                 trySend(ResultState.Success(result.data))
                             }

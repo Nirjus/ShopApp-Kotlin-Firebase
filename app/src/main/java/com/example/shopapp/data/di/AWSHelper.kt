@@ -1,6 +1,7 @@
 package com.example.shopapp.data.di
 
 import android.content.Context
+import android.net.Uri
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobile.client.Callback
 import com.amazonaws.mobile.client.UserStateDetails
@@ -91,7 +92,7 @@ class AWSHelper(private val context: Context) {
         }
     }
 
-    fun uploadFileFromUri(context: Context, uri: android.net.Uri, objectKey: String): Flow<ResultState<String>> = callbackFlow {
+    fun uploadFileFromUri(context: Context, uri: Uri, objectKey: String): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         try {
             val bucketName = awsConfiguration.optJsonObject("S3TransferUtility")
