@@ -91,6 +91,54 @@ class AWSHelper(private val context: Context) {
         }
     }
 
+    fun uploadFileFromUri(context: Context, uri: android.net.Uri, objectKey: String): Flow<ResultState<String>> = callbackFlow {
+        trySend(ResultState.Loading)
+        try {
+            val bucketName = awsConfiguration.optJsonObject("S3TransferUtility")
+                ?.getString("Bucket") ?: throw Exception("Bucket name not found")
+
+            // Copy content from Uri to temp file
+            val inputStream = context.contentResolver.openInputStream(uri)
+                ?: throw Exception("Unable to open input stream from URI")
+            val tempFile = File.createTempFile("upload", null, context.cacheDir)
+            tempFile.outputStream().use { fileOut ->
+                inputStream.copyTo(fileOut)
+            }
+            inputStream.close()
+
+            val uploadObserver = transferUtility.upload(bucketName, objectKey, tempFile)
+
+            uploadObserver.setTransferListener(object : TransferListener {
+                override fun onStateChanged(id: Int, state: TransferState) {
+                    if (state == TransferState.COMPLETED) {
+                        val s3Url = "https://$bucketName.s3.amazonaws.com/$objectKey"
+                        trySend(ResultState.Success(s3Url))
+                        channel.close()
+                        tempFile.delete()
+                    }
+                }
+
+                override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+                    // Optionally emit progress
+                }
+
+                override fun onError(id: Int, ex: Exception) {
+                    trySend(ResultState.Error(ex.message ?: "Upload failed"))
+                    channel.close(ex)
+                    tempFile.delete()
+                }
+            })
+
+            awaitClose {
+                uploadObserver.cleanTransferListener()
+                tempFile.delete()
+            }
+        } catch (e: Exception) {
+            trySend(ResultState.Error(e.message ?: "Upload failed"))
+            channel.close()
+        }
+    }
+
     fun deleteFile(objectKey: String): Flow<ResultState<Boolean>> = flow {
         emit(ResultState.Loading)
         try {

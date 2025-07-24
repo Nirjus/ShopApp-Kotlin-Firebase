@@ -1,5 +1,6 @@
 package com.example.shopapp.domain.repo
 
+import android.content.Context
 import android.net.Uri
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.domain.models.BannerDataModels
@@ -16,7 +17,7 @@ interface Repo {
     fun loginUserWithEmailAndPassword(userData: UserData): Flow<ResultState<String>>
     fun getUserById(userId: String): Flow<ResultState<UserDataParent>>
     fun updateUserData(userDataParent: UserDataParent): Flow<ResultState<String>>
-    fun updateUserProfileImage(uri: Uri): Flow<ResultState<String>>
+    fun updateUserProfileImage(context: Context, uri: Uri): Flow<ResultState<String>>
     fun getAllCategories(): Flow<ResultState<List<CategoryDataModel>>>
     fun getCategoriesInLimited(): Flow<ResultState<List<CategoryDataModel>>>
     fun getProductsInLimit(): Flow<ResultState<List<ProductsDataModel>>>

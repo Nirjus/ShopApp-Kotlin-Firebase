@@ -1,5 +1,6 @@
 package com.example.shopapp.data.repo
 
+import android.content.Context
 import android.net.Uri
 import com.example.shopapp.common.ADD_TO_CART
 import com.example.shopapp.common.ADD_TO_FAV
@@ -98,14 +99,12 @@ class RepoImpl @Inject constructor(
                 }
             awaitClose { close() }
         }
-
-    override fun updateUserProfileImage(uri: Uri): Flow<ResultState<String>> = callbackFlow {
+    override fun updateUserProfileImage(context: Context, uri: Uri): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         try {
             val userId = firebaseAuth.currentUser?.uid ?: throw Exception("User not authenticated")
             val objectKey = "profile_images/$userId/${System.currentTimeMillis()}"
-
-            uploadFileToS3(uri.path!!, objectKey).collect { result ->
+            awsHelper.uploadFileFromUri(context, uri, objectKey).collect { result ->
                 when (result) {
                     is ResultState.Success -> {
                         // Update user profile with S3 URL
@@ -119,7 +118,6 @@ class RepoImpl @Inject constructor(
                                 trySend(ResultState.Error(e.message ?: "Failed to update profile"))
                             }
                     }
-
                     is ResultState.Error -> trySend(ResultState.Error(result.message))
                     is ResultState.Loading -> trySend(ResultState.Loading)
                 }
@@ -335,10 +333,6 @@ class RepoImpl @Inject constructor(
 
     suspend fun initializeAWS() {
         awsHelper.initAWS()
-    }
-
-    fun uploadFileToS3(filePath: String, objectKey: String): Flow<ResultState<String>> {
-        return awsHelper.uploadFile(filePath, objectKey)
     }
 
     fun deleteFileFromS3(objectKey: String): Flow<ResultState<Boolean>> {

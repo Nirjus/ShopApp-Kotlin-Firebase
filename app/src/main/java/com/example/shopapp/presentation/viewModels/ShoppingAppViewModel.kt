@@ -1,5 +1,6 @@
 package com.example.shopapp.presentation.viewModels
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -400,9 +401,9 @@ class ShoppingAppViewModel @Inject constructor(
         }
     }
 
-    fun uploadUserProfileIMage(uri: Uri) {
+    fun uploadUserProfileImageWithContext(context: Context, uri: Uri) {
         viewModelScope.launch {
-            uploadUserProfileImageUseCase.updateUserProfileImage(uri).collect {
+            uploadUserProfileImageUseCase.updateUserProfileImages(context, uri).collect {
                 when (it) {
                     is ResultState.Error -> {
                         _uploadUserProfileImageState.value =
@@ -411,14 +412,12 @@ class ShoppingAppViewModel @Inject constructor(
                                 errorMessage = it.message
                             )
                     }
-
                     is ResultState.Loading -> {
                         _uploadUserProfileImageState.value =
                             _uploadUserProfileImageState.value.copy(
                                 isLoading = true,
                             )
                     }
-
                     is ResultState.Success -> {
                         _uploadUserProfileImageState.value =
                             _uploadUserProfileImageState.value.copy(
@@ -672,3 +671,4 @@ data class GetBannersState(
     val errorMessage: String? = null,
     val userData: List<BannerDataModels?> = emptyList()
 )
+

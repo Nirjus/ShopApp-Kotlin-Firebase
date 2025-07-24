@@ -2,6 +2,7 @@ package com.example.shopapp.presentation.Screens
 
 import com.example.shopapp.R
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -100,21 +101,23 @@ fun ProfileScreenUI(
     val pickMedia =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
             if (uri != null) {
-                viewModel.uploadUserProfileIMage(uri)
+                viewModel.uploadUserProfileImageWithContext(uri=uri, context = context)
                 imageUri.value = uri.toString()
             }
         }
     if (updateScreenState.value.userData != null) {
         Toast.makeText(context, "Updated Successfully", Toast.LENGTH_SHORT).show()
     } else if (updateScreenState.value.errorMessage != null) {
-        Toast.makeText(context, updateScreenState.value.errorMessage, Toast.LENGTH_SHORT).show()
+        val message = updateScreenState.value.errorMessage ?: "update failed"
+        Toast.makeText(context, "Error $message", Toast.LENGTH_SHORT).show()
     } else if (updateScreenState.value.isLoading) {
         CircularIndicator()
     }
     if (userProfileImageState.value.userData != null) {
         imageUri.value = userProfileImageState.value.userData.toString()
     } else if (userProfileImageState.value.errorMessage != null) {
-        Toast.makeText(context, updateScreenState.value.errorMessage, Toast.LENGTH_SHORT).show()
+        val message = userProfileImageState.value.errorMessage ?: "update failed"
+        Toast.makeText(context, "Error $message", Toast.LENGTH_SHORT).show()
     } else if (userProfileImageState.value.isLoading) {
         CircularIndicator()
     }
@@ -140,7 +143,7 @@ fun ProfileScreenUI(
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
-                            .border(2.dp, color = colorResource(R.color.purple_500))
+                            .border(2.dp, color = colorResource(R.color.purple_500), shape = CircleShape)
                     ) {
                         when (painter.state) {
                             is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
@@ -151,6 +154,7 @@ fun ProfileScreenUI(
 
                             else -> SubcomposeAsyncImageContent()
                         }
+                    }
                         if (isEditing.value) {
                             IconButton(
                                 onClick = {
@@ -173,7 +177,7 @@ fun ProfileScreenUI(
                                 )
                             }
                         }
-                    }
+
                 }
                 Spacer(modifier = Modifier.size(16.dp))
                 Row() {
@@ -268,7 +272,8 @@ fun ProfileScreenUI(
                     OutlinedButton(
                         onClick = { isEditing.value = !isEditing.value },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300))
                     ) {
                         Text("Edit Profile")
                     }
