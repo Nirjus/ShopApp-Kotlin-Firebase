@@ -32,6 +32,7 @@ class ShoppingAppViewModel @Inject constructor(
     private val getCheckoutUseCase: GetCheckouts,
     private val addToCartUseCase: AddToCart,
     private val addToFavUseCase: AddToFavourite,
+    private val removeFromFavouriteUseCase: RemoveFromFavourite,
     private val uploadUserProfileImageUseCase: UserProfileImageUpdate,
     private val getAllSuggestedProductsUseCase: GetAllSuggestiveProducts,
     private val getProductByIdUseCase: GetProductByIdUseCase,
@@ -57,6 +58,9 @@ class ShoppingAppViewModel @Inject constructor(
     val getProductByIdState = _getProductByIdState.asStateFlow()
     private val _addToFavState = MutableStateFlow(AddToFavState())
     val addToFavState = _addToFavState.asStateFlow()
+
+    private val _removeFromFavState = MutableStateFlow(RemoveFromFavState())
+    val removeFromFavState = _removeFromFavState.asStateFlow()
     private val _getAllFavouriteState = MutableStateFlow(GetAllFavouriteState())
     val getAllFavouriteState = _getAllFavouriteState.asStateFlow()
     private val _getAllProductsState = MutableStateFlow(GetAllProductsState())
@@ -301,7 +305,31 @@ class ShoppingAppViewModel @Inject constructor(
             }
         }
     }
-
+    fun removeFromFavouriteById(productId: String){
+        viewModelScope.launch {
+            removeFromFavouriteUseCase.removeFromFavourites(productId).collect {
+                when(it) {
+                    is ResultState.Error -> {
+                        _removeFromFavState.value = _removeFromFavState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _removeFromFavState.value = _removeFromFavState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _removeFromFavState.value = _removeFromFavState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                }
+            }
+        }
+    }
     fun getProductById(productId: String) {
         viewModelScope.launch {
             getProductByIdUseCase.getProductByID(productId).collect {
@@ -623,7 +651,11 @@ data class AddToFavState(
     val errorMessage: String? = null,
     val userData: String? = null
 )
-
+data class RemoveFromFavState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: String? = null
+)
 data class GetAllFavouriteState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,

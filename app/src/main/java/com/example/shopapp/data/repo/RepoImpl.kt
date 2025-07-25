@@ -99,34 +99,42 @@ class RepoImpl @Inject constructor(
                 }
             awaitClose { close() }
         }
-    override fun updateUserProfileImage(context: Context, uri: Uri): Flow<ResultState<String>> = callbackFlow {
-        trySend(ResultState.Loading)
-        try {
-            val userId = firebaseAuth.currentUser?.uid ?: throw Exception("User not authenticated")
-            val objectKey = "profile_images/$userId/${System.currentTimeMillis()}"
-            awsHelper.uploadFileFromUri(context, uri, objectKey).collect { result ->
-                when (result) {
-                    is ResultState.Success -> {
-                        // Update user profile with S3 URL
-                        firebaseFirestore.collection(USER_COLLECTION)
-                            .document(userId)
-                            .update("image", result.data)
-                            .addOnSuccessListener {
-                                trySend(ResultState.Success(result.data))
-                            }
-                            .addOnFailureListener { e ->
-                                trySend(ResultState.Error(e.message ?: "Failed to update profile"))
-                            }
+
+    override fun updateUserProfileImage(context: Context, uri: Uri): Flow<ResultState<String>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            try {
+                val userId =
+                    firebaseAuth.currentUser?.uid ?: throw Exception("User not authenticated")
+                val objectKey = "profile_images/$userId/${System.currentTimeMillis()}"
+                awsHelper.uploadFileFromUri(context, uri, objectKey).collect { result ->
+                    when (result) {
+                        is ResultState.Success -> {
+                            // Update user profile with S3 URL
+                            firebaseFirestore.collection(USER_COLLECTION)
+                                .document(userId)
+                                .update("image", result.data)
+                                .addOnSuccessListener {
+                                    trySend(ResultState.Success(result.data))
+                                }
+                                .addOnFailureListener { e ->
+                                    trySend(
+                                        ResultState.Error(
+                                            e.message ?: "Failed to update profile"
+                                        )
+                                    )
+                                }
+                        }
+
+                        is ResultState.Error -> trySend(ResultState.Error(result.message))
+                        is ResultState.Loading -> trySend(ResultState.Loading)
                     }
-                    is ResultState.Error -> trySend(ResultState.Error(result.message))
-                    is ResultState.Loading -> trySend(ResultState.Loading)
                 }
+            } catch (e: Exception) {
+                trySend(ResultState.Error(e.message ?: "Failed to update profile image"))
             }
-        } catch (e: Exception) {
-            trySend(ResultState.Error(e.message ?: "Failed to update profile image"))
+            awaitClose { close() }
         }
-        awaitClose { close() }
-    }
 
     override fun getCategoriesInLimited(): Flow<ResultState<List<CategoryDataModel>>> =
         callbackFlow {
@@ -232,6 +240,17 @@ class RepoImpl @Inject constructor(
             awaitClose { close() }
         }
 
+    override fun removeFromFavourite(productId: String): Flow<ResultState<String>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection(ADD_TO_FAV).document(firebaseAuth.currentUser!!.uid)
+            .collection("User_Fav").document(productId).delete().addOnSuccessListener {
+                trySend(ResultState.Success("Product removed from favourite successfully"))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose { close() }
+    }
+
     override fun getAllFavourites(): Flow<ResultState<List<ProductsDataModel>>> = callbackFlow {
 
         trySend(ResultState.Loading)
@@ -256,13 +275,13 @@ class RepoImpl @Inject constructor(
             firebaseFirestore.collection(ADD_TO_FAV).document(firebaseAuth.currentUser!!.uid)
                 .collection("User_Fav").get().addOnSuccessListener {
 
-                val fav = it.documents.mapNotNull { documentSnapshot ->
-                    documentSnapshot.toObject(ProductsDataModel::class.java)
+                    val fav = it.documents.mapNotNull { documentSnapshot ->
+                        documentSnapshot.toObject(ProductsDataModel::class.java)
+                    }
+                    trySend(ResultState.Success(fav))
+                }.addOnFailureListener {
+                    trySend(ResultState.Error(it.toString()))
                 }
-                trySend(ResultState.Success(fav))
-            }.addOnFailureListener {
-                trySend(ResultState.Error(it.toString()))
-            }
 
             awaitClose { close() }
 
