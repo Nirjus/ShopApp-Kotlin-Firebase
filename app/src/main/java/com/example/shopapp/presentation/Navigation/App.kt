@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import com.example.bottombar.model.IndicatorStyle
 import com.example.shopapp.R
 import com.example.shopapp.presentation.Screens.AllCategoriesScreen
 import com.example.shopapp.presentation.Screens.CartScreen
+import com.example.shopapp.presentation.Screens.CheckoutScreen
 import com.example.shopapp.presentation.Screens.GetAllFavouriteProductScreen
 import com.example.shopapp.presentation.Screens.GetAllProductScreen
 import com.example.shopapp.presentation.Screens.HomeScreen
@@ -55,10 +57,11 @@ data class BottomNavItem(val name: String, val icon: ImageVector, val unSelected
 
 @Composable
 fun App(
-    firebaseAuth: FirebaseAuth
-) {
+    firebaseAuth: FirebaseAuth,
+    startPayment:()-> Unit,
+    ) {
     val navController = rememberNavController()
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableIntStateOf(0) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
 
@@ -172,8 +175,9 @@ fun App(
                     ProductDetailsScreen(navController = navController, productId = category.categoryName)
                 }
                 composable<Routes.CheckoutScreen> {
+
                     var product: Routes.CheckoutScreen = it.toRoute()
-                    ProductDetailsScreen(navController = navController, productId = product.productId)
+                    CheckoutScreen(navController = navController, productId = product.productId, pay = startPayment)
                 }
             }
         }

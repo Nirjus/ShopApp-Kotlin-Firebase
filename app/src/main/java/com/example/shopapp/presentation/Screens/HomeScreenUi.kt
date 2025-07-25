@@ -75,7 +75,7 @@ fun HomeScreen(
         CircularIndicator()
     } else if (homeState.errorMessage != null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(homeState.errorMessage!!)
+            Text("Error: " + homeState.errorMessage!!)
         }
     } else {
         Scaffold { innerPadding ->

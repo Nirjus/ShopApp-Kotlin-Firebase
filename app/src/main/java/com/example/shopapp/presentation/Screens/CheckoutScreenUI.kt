@@ -53,7 +53,8 @@ import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 fun CheckoutScreen(
     navController: NavController,
     productId: String,
-    viewModel: ShoppingAppViewModel = hiltViewModel()
+    viewModel: ShoppingAppViewModel = hiltViewModel(),
+    pay: () -> Unit
 ) {
     val state = viewModel.getProductByIdState.collectAsStateWithLifecycle()
     val productData = state.value.userData
@@ -227,7 +228,7 @@ fun CheckoutScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick={
-                        //pay.invoke()
+                        pay()
                     }, modifier = Modifier.fillMaxWidth(), colors = ButtonColors(
                         containerColor = colorResource(R.color.purple_300),
                         contentColor = colorResource(R.color.white),
