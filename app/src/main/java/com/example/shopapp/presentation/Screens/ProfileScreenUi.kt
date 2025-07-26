@@ -9,6 +9,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,13 +17,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -53,6 +59,8 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.example.shopapp.domain.models.UserData
 import com.example.shopapp.domain.models.UserDataParent
+import com.example.shopapp.domain.models.UserRoles
+import com.example.shopapp.presentation.Navigation.AdminRoutes
 import com.example.shopapp.presentation.Navigation.SubNavigation
 import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.utils.LogoutAlertBox
@@ -88,6 +96,8 @@ fun ProfileScreenUI(
     val address =
         remember { mutableStateOf(profileScreenState.value.userData?.userData?.address ?: "") }
 
+    val isAdmin = remember { mutableStateOf(profileScreenState.value.userData?.userData?.userRole == UserRoles.ADMIN) }
+
     LaunchedEffect(profileScreenState.value.userData) {
         profileScreenState.value.userData?.userData?.let { userData ->
             firstname.value = userData.firstName
@@ -96,6 +106,7 @@ fun ProfileScreenUI(
             phoneNumber.value = userData.phoneNumber
             address.value = userData.address
             imageUri.value = userData.image
+            isAdmin.value = userData.userRole == UserRoles.ADMIN
         }
     }
     val pickMedia =
@@ -122,39 +133,40 @@ fun ProfileScreenUI(
         CircularIndicator()
     }
     if (profileScreenState.value.userData != null) {
-        Scaffold() { innerPadding ->
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Center
             )
             {
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .align(Alignment.Start)
-                ) {
-                    SubcomposeAsyncImage(
-                        model = if (isEditing.value) imageUri.value else imageUri.value,
-                        contentDescription = "Profile image",
-                        contentScale = ContentScale.Crop,
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Box(
                         modifier = Modifier
                             .size(120.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, color = colorResource(R.color.purple_500), shape = CircleShape)
                     ) {
-                        when (painter.state) {
-                            is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
-                            is AsyncImagePainter.State.Error -> Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null
-                            )
+                        SubcomposeAsyncImage(
+                            model = if (isEditing.value) imageUri.value else imageUri.value,
+                            contentDescription = "Profile image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, color = colorResource(R.color.purple_500), shape = CircleShape)
+                        ) {
+                            when (painter.state) {
+                                is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
+                                is AsyncImagePainter.State.Error -> Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null
+                                )
 
-                            else -> SubcomposeAsyncImageContent()
+                                else -> SubcomposeAsyncImageContent()
+                            }
                         }
-                    }
                         if (isEditing.value) {
                             IconButton(
                                 onClick = {
@@ -178,6 +190,18 @@ fun ProfileScreenUI(
                             }
                         }
 
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    if(isAdmin.value){
+                        OutlinedButton(
+                            onClick = { navController.navigate(AdminRoutes.ManageProductScreen) },
+                            modifier = Modifier.width(160.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(colorResource(R.color.teal_200))
+                        ) {
+                            Text(text = "Admin panel")
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.size(16.dp))
                 Row() {

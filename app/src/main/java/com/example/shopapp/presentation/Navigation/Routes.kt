@@ -9,8 +9,27 @@ sealed class SubNavigation{
 
     @Serializable
     object MainScreen: SubNavigation()
+
+    @Serializable
+    object AdminScreen: SubNavigation()
 }
 
+sealed class AdminRoutes{
+    @Serializable
+    object ManageProductScreen
+
+    @Serializable
+    object ManageCategoryScreen
+
+    @Serializable
+    object ManageOrderScreen
+
+    @Serializable
+    object ManageUsersScreen
+
+    @Serializable
+    data class CreateOrEditProductScreen(val productId: String? = null)
+}
 sealed class Routes{
 
     @Serializable

@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Scaffold
@@ -41,6 +47,11 @@ import com.example.bottombar.components.BottomBarItem
 import com.example.bottombar.model.IndicatorDirection
 import com.example.bottombar.model.IndicatorStyle
 import com.example.shopapp.R
+import com.example.shopapp.presentation.Screens.AdminScreens.CreateOrEditProductScreenUI
+import com.example.shopapp.presentation.Screens.AdminScreens.ManageCategoryScreenUI
+import com.example.shopapp.presentation.Screens.AdminScreens.ManageOrderScreenUI
+import com.example.shopapp.presentation.Screens.AdminScreens.ManageProductScreenUI
+import com.example.shopapp.presentation.Screens.AdminScreens.ManageUserScreenUI
 import com.example.shopapp.presentation.Screens.AllCategoriesScreen
 import com.example.shopapp.presentation.Screens.CartScreen
 import com.example.shopapp.presentation.Screens.CheckoutScreen
@@ -65,16 +76,30 @@ fun App(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
 
-    val shouldShowBottomBar = remember { mutableStateOf(false) }
+    val showUserBottomBar = remember { mutableStateOf(false) }
+    val showAdminBottomBar = remember { mutableStateOf(false) }
 
+    val userBottomRoutes = listOf(
+        Routes.HomeScreen,
+        Routes.WishListScreen,
+        Routes.CartScreen,
+        Routes.ProfileScreen
+    )
+
+    val adminBottomRoutes = listOf(
+        AdminRoutes.ManageProductScreen,
+        AdminRoutes.ManageCategoryScreen,
+        AdminRoutes.ManageOrderScreen,
+        AdminRoutes.ManageUsersScreen
+    )
     LaunchedEffect(currentDestination) {
-        shouldShowBottomBar.value = when (currentDestination) {
-            Routes.LoginScreen::class.qualifiedName, Routes.SignUpScreen::class.qualifiedName -> false
-            else -> true
-        }
+
+         showUserBottomBar.value = currentDestination in userBottomRoutes.map { it::class.qualifiedName}
+         showAdminBottomBar.value = currentDestination in adminBottomRoutes.map { it::class.qualifiedName }
     }
 
-    val BottomNavItem = listOf(
+
+    val userBottomNavItems = listOf(
         BottomNavItem("Home", Icons.Default.Home, unSelectedIcon = Icons.Outlined.Home),
         BottomNavItem("WishList", Icons.Default.Favorite, unSelectedIcon = Icons.Outlined.Favorite),
         BottomNavItem(
@@ -84,6 +109,12 @@ fun App(
         ),
         BottomNavItem("Profile", Icons.Default.Person, unSelectedIcon = Icons.Outlined.Person)
     )
+    val adminBottomNavItems = listOf(
+        BottomNavItem("Products", Icons.Default.ShoppingCart, Icons.Outlined.ShoppingCart),
+        BottomNavItem("Category", Icons.Default.Menu, Icons.Outlined.Menu),
+        BottomNavItem("Orders", Icons.Default.Info, Icons.Outlined.Info),
+        BottomNavItem("Users", Icons.Default.AccountCircle, Icons.Outlined.AccountCircle)
+    )
     var startScreen = if (firebaseAuth.currentUser == null) {
         SubNavigation.LoginSignUpScreen
     } else {
@@ -92,7 +123,6 @@ fun App(
     Scaffold(
         modifier = Modifier,
         bottomBar = {
-            if (shouldShowBottomBar.value) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -101,50 +131,79 @@ fun App(
                                 .calculateTopPadding()
                         )
                 ) {
-                    AnimatedBottomBar(
-                        selectedItem = selectedItem,
-                        itemSize = BottomNavItem.size,
-                        containerColor = Color.Transparent,
-                        indicatorColor = colorResource(id = R.color.purple_300),
-                        indicatorDirection = IndicatorDirection.BOTTOM,
-                        indicatorStyle = IndicatorStyle.FILLED
-                    ) {
-                        BottomNavItem.forEachIndexed { index, item ->
-                            BottomBarItem(
-                                selected = selectedItem == index,
-                                onClick = {
-                                    selectedItem = index
-                                    when (index) {
-                                        0 -> navController.navigate(Routes.HomeScreen)
-                                        1 -> navController.navigate(Routes.WishListScreen)
-                                        2 -> navController.navigate(Routes.CartScreen)
-                                        3 -> navController.navigate(Routes.ProfileScreen)
-                                    }
-                                },
-                                imageVector = item.icon,
-                                label = item.name,
-                                containerColor = Color.Transparent
-                            )
+                    when {
+
+                        showUserBottomBar.value -> AnimatedBottomBar(
+                            selectedItem = selectedItem,
+                            itemSize = userBottomNavItems.size,
+                            containerColor = Color.Transparent,
+                            indicatorColor = colorResource(id = R.color.purple_300),
+                            indicatorDirection = IndicatorDirection.BOTTOM,
+                            indicatorStyle = IndicatorStyle.FILLED
+                        ) {
+                            userBottomNavItems.forEachIndexed { index, item ->
+                                BottomBarItem(
+                                    selected = selectedItem == index,
+                                    onClick = {
+                                        selectedItem = index
+                                        when (index) {
+                                            0 -> navController.navigate(Routes.HomeScreen)
+                                            1 -> navController.navigate(Routes.WishListScreen)
+                                            2 -> navController.navigate(Routes.CartScreen)
+                                            3 -> navController.navigate(Routes.ProfileScreen)
+                                        }
+                                    },
+                                    imageVector = item.icon,
+                                    label = item.name,
+                                    containerColor = Color.Transparent
+                                )
+                            }
+                        }
+                        showAdminBottomBar.value -> AnimatedBottomBar(
+                            selectedItem = selectedItem,
+                            itemSize = adminBottomNavItems.size,
+                            containerColor = Color.Transparent,
+                            indicatorColor = colorResource(id = R.color.teal_200),
+                            indicatorDirection = IndicatorDirection.BOTTOM,
+                            indicatorStyle = IndicatorStyle.FILLED
+                        ) {
+                            adminBottomNavItems.forEachIndexed { index, item ->
+                                BottomBarItem(
+                                    selected = selectedItem == index,
+                                    onClick = {
+                                        selectedItem = index
+                                        when (index) {
+                                            0 -> navController.navigate(AdminRoutes.ManageProductScreen)
+                                            1 -> navController.navigate(AdminRoutes.ManageCategoryScreen)
+                                            2 -> navController.navigate(AdminRoutes.ManageOrderScreen)
+                                            3 -> navController.navigate(AdminRoutes.ManageUsersScreen)
+                                        }
+                                    },
+                                    imageVector = item.icon,
+                                    label = item.name,
+                                    containerColor = Color.Transparent
+                                )
+                            }
                         }
                     }
                 }
-            }
+
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(bottom = if (shouldShowBottomBar.value) 60.dp else 0.dp)
+                .padding(bottom = if (showUserBottomBar.value) 60.dp else 0.dp)
         ) {
             NavHost(navController = navController, startDestination = startScreen) {
                 navigation<SubNavigation.LoginSignUpScreen>(startDestination = Routes.LoginScreen) {
                     composable<Routes.LoginScreen> {
                         SignInScreenUI(navController = navController)
                     }
-                }
-                composable<Routes.SignUpScreen> {
-                    SignUpScreen(navController = navController)
+                    composable<Routes.SignUpScreen> {
+                        SignUpScreen(navController = navController)
+                    }
                 }
                 navigation<SubNavigation.MainScreen>(startDestination = Routes.HomeScreen) {
                     composable<Routes.HomeScreen> {
@@ -164,6 +223,25 @@ fun App(
                     }
                     composable<Routes.AllCategoryScreen> {
                         AllCategoriesScreen(navController = navController)
+                    }
+                }
+                navigation<SubNavigation.AdminScreen>(startDestination = AdminRoutes.ManageProductScreen) {
+                    composable<AdminRoutes.ManageProductScreen> {
+                        ManageProductScreenUI(navController = navController)
+                    }
+
+                    composable<AdminRoutes.ManageCategoryScreen> {
+                        ManageCategoryScreenUI(navController = navController)
+                    }
+                    composable<AdminRoutes.ManageOrderScreen> {
+                        ManageOrderScreenUI(navController = navController)
+                    }
+                    composable<AdminRoutes.ManageUsersScreen> {
+                        ManageUserScreenUI(navController = navController)
+                    }
+                    composable<AdminRoutes.CreateOrEditProductScreen> {
+                        var product: AdminRoutes.CreateOrEditProductScreen = it.toRoute()
+                        CreateOrEditProductScreenUI(navController= navController, productId = product.productId)
                     }
                 }
                 composable<Routes.ProductDetailsScreen> {

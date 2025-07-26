@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/repository/UserRepository.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/repository/UserRepository.kt" />
+              <option name="updatedContent" value="package com.example.shopapp.domain.repository&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/use_case/GetCurrentUserUseCase.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/use_case/GetCurrentUserUseCase.kt" />
+              <option name="updatedContent" value="package com.example.shopapp.domain.use_case&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/utils/FirebaseUserUtils.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/utils/FirebaseUserUtils.kt" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/utils/UserRoleUtils.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/shopapp/domain/utils/UserRoleUtils.kt" />
+              <option name="updatedContent" value="package com.example.shopapp.domain.utils&#10;&#10;import com.example.shopapp.domain.models.UserData&#10;import com.example.shopapp.domain.models.UserRoles&#10;&#10;fun isUserAdmin(userData: UserData?): Boolean {&#10;    return userData?.userRole == UserRoles.ADMIN&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

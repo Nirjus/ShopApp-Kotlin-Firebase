@@ -10,6 +10,7 @@ data class UserData(
     val password: String = "",
     val address: String = "",
     val image: String = "",
+    val userRole: String = "USER"  // Default role is USER
 )
 {
     fun toMap() : Map<String, Any>{
@@ -22,9 +23,16 @@ data class UserData(
         map["address"] = address
         map["image"] = image
         map["phoneNumber"] = phoneNumber
+        map["userRole"] = userRole
 
         return map
     }
+}
+
+// Role constants
+object UserRoles {
+    const val USER = "USER"
+    const val ADMIN = "ADMIN"
 }
 
 data class UserDataParent(val nodeId: String = "", val userData: UserData = UserData())

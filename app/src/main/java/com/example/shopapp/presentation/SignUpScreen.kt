@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.shopapp.R
 import com.example.shopapp.domain.models.UserData
+import com.example.shopapp.domain.models.UserRoles
 import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.Navigation.SubNavigation
 import com.example.shopapp.presentation.utils.CircularIndicator
@@ -156,7 +157,8 @@ fun SignUpScreen(navController: NavController, viewModel: ShoppingAppViewModel =
                                 lastName = lastName,
                                 email = email,
                                 password = password,
-                                phoneNumber = phoneNumber
+                                phoneNumber = phoneNumber,
+                                userRole = UserRoles.USER // Set default role as USER
                             )
                             viewModel.createUser(userData)
 
