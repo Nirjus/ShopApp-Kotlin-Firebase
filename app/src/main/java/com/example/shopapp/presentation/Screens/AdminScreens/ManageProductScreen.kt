@@ -53,7 +53,7 @@ fun ManageProductScreenUI(navController: NavController) {
                 title = {
                     Text(
                         "Manage Products",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(start = 10.dp)
                     )
                 },
@@ -66,15 +66,15 @@ fun ManageProductScreenUI(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .padding(horizontal = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.size(180.dp, 100.dp).border(width = 2.dp, color= Color.Gray, shape = RoundedCornerShape(10.dp)).background(color = colorResource(R.color.teal_200).copy(0.2f)), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("No. of products", style = MaterialTheme.typography.bodyLarge)
                     Text("${10}", style = MaterialTheme.typography.bodyMedium)
                 }
-                OutlinedButton(onClick = {navController.navigate(AdminRoutes.CreateOrEditProductScreen)}) {
+                OutlinedButton(onClick = {navController.navigate(AdminRoutes.CreateOrEditProductScreen())}) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add icon", modifier = Modifier.size(20.dp), tint = colorResource(R.color.teal_700))
                         Spacer(modifier = Modifier.width(5.dp))
@@ -83,11 +83,11 @@ fun ManageProductScreenUI(navController: NavController) {
                 }
             }
             Spacer(modifier = Modifier.size(10.dp))
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(10){
-
-                }
-            }
+//            LazyColumn(modifier = Modifier.fillMaxSize()) {
+//                items(10){
+//
+//                }
+//            }
         }
     }
 }

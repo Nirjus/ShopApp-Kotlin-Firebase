@@ -15,8 +15,10 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.shopapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,13 +33,14 @@ fun ManageCategoryScreenUI(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(
-                        "Manage category",
+                        "Manage Categories",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = 10.dp)
                     )
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(R.color.teal_200),
+                    titleContentColor = MaterialTheme.colorScheme.background)
             )
         }) { innerPadding ->
         Column(

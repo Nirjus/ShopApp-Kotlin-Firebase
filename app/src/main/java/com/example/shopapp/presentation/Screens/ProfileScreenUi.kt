@@ -194,7 +194,7 @@ fun ProfileScreenUI(
                     Spacer(modifier = Modifier.height(16.dp))
                     if(isAdmin.value){
                         OutlinedButton(
-                            onClick = { navController.navigate(AdminRoutes.ManageProductScreen) },
+                            onClick = { navController.navigate(SubNavigation.AdminScreen) },
                             modifier = Modifier.width(160.dp),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(colorResource(R.color.teal_200))

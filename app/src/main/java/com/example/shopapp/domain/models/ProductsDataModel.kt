@@ -12,7 +12,6 @@ data class ProductsDataModel(
     val finalPrice: String = "",
     val category: String = "",
     val image: String = "",
-    val date: Long = System.currentTimeMillis(),
     val createBy: String = "",
     val availableUnites:Int  = 0,
 
