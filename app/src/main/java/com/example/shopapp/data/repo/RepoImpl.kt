@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.example.shopapp.common.ADD_TO_CART
 import com.example.shopapp.common.ADD_TO_FAV
+import com.example.shopapp.common.CATEGORY_COLLECTION
 import com.example.shopapp.common.PRODUCT_COLLECTION
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.common.USER_COLLECTION
@@ -138,7 +139,7 @@ class RepoImpl @Inject constructor(
 
     override fun getCategoriesInLimited(): Flow<ResultState<List<CategoryDataModel>>> =
         callbackFlow {
-            firebaseFirestore.collection("Categories").limit(7).get()
+            firebaseFirestore.collection(CATEGORY_COLLECTION).limit(7).get()
                 .addOnSuccessListener { queryDocumentSnapshots ->
                     val categories =
                         queryDocumentSnapshots.documents.mapNotNull { documentSnapshot ->
@@ -155,7 +156,7 @@ class RepoImpl @Inject constructor(
 
         trySend(ResultState.Loading)
 
-        firebaseFirestore.collection("categories").get().addOnSuccessListener {
+        firebaseFirestore.collection(CATEGORY_COLLECTION).get().addOnSuccessListener {
 
             val categories = it.documents.mapNotNull { documentSnapshot ->
                 documentSnapshot.toObject(CategoryDataModel::class.java)
@@ -170,7 +171,7 @@ class RepoImpl @Inject constructor(
     override fun getProductsInLimit(): Flow<ResultState<List<ProductsDataModel>>> = callbackFlow {
         trySend(ResultState.Loading)
 
-        firebaseFirestore.collection("Products").limit(10).get().addOnSuccessListener {
+        firebaseFirestore.collection(PRODUCT_COLLECTION).limit(10).get().addOnSuccessListener {
             val products = it.documents.mapNotNull { documentSnapshot ->
                 documentSnapshot.toObject(ProductsDataModel::class.java)?.apply {
                     productId = documentSnapshot.id
@@ -186,7 +187,7 @@ class RepoImpl @Inject constructor(
     override fun getAllProducts(): Flow<ResultState<List<ProductsDataModel>>> = callbackFlow {
         trySend(ResultState.Loading)
 
-        firebaseFirestore.collection("Products").get().addOnSuccessListener {
+        firebaseFirestore.collection(PRODUCT_COLLECTION).get().addOnSuccessListener {
             val products = it.documents.mapNotNull { documentSnapshot ->
                 documentSnapshot.toObject(ProductsDataModel::class.java)?.apply {
                     productId = documentSnapshot.id
@@ -308,7 +309,7 @@ class RepoImpl @Inject constructor(
         callbackFlow {
             trySend(ResultState.Loading)
 
-            firebaseFirestore.collection("Products").document(productId).get()
+            firebaseFirestore.collection(PRODUCT_COLLECTION).document(productId).get()
                 .addOnSuccessListener {
 
                     val product = it.toObject(ProductsDataModel::class.java)
@@ -335,7 +336,7 @@ class RepoImpl @Inject constructor(
         callbackFlow {
             trySend(ResultState.Loading)
 
-            firebaseFirestore.collection("Products").whereEqualTo("categories", categoryName).get()
+            firebaseFirestore.collection(PRODUCT_COLLECTION).whereEqualTo(CATEGORY_COLLECTION, categoryName).get()
                 .addOnSuccessListener {
 
                     val products = it.documents.mapNotNull { documentSnapshot ->

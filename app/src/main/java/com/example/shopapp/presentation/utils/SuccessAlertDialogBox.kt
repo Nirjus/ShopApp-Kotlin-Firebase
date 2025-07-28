@@ -13,8 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -31,9 +29,10 @@ import com.example.shopapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SuccessAlertBox(
+fun BasicAlertBox(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    text: String = "Congratulation, you have \n completed your registration",
+    customContent: @Composable () -> Unit
 ) {
     BasicAlertDialog(
         onDismissRequest = onDismiss,
@@ -71,23 +70,14 @@ fun SuccessAlertBox(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Congratulation, you have \n completed your registration",
+                    text = text,
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+                customContent()
 
-                Button(
-                    onClick = onConfirm,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Go to Home", color = Color.White)
-                }
             }
         }
     )

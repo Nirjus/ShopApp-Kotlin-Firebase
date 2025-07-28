@@ -12,7 +12,7 @@ data class ProductsDataModel(
     val finalPrice: String = "",
     val category: String = "",
     val image: String = "",
-    val createBy: String = "",
+    val createdAt: String = "",
     val availableUnites:Int  = 0,
 
     )

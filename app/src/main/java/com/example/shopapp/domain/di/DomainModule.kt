@@ -20,7 +20,7 @@ class DomainModule {
     fun provideRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore, awsHelper: AWSHelper): Repo{
         return RepoImpl(firebaseAuth, firebaseFirestore, awsHelper)
     }
-
+    @Provides
     fun provideAdminRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore, awsHelper: AWSHelper): AdminRepo{
         return AdminRepoImpl(firebaseAuth, firebaseFirestore,awsHelper)
     }

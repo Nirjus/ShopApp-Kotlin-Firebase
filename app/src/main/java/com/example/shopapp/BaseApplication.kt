@@ -3,6 +3,7 @@ package com.example.shopapp
 import android.app.Application
 import android.util.Log
 import com.example.shopapp.data.repo.RepoImpl
+import com.example.shopapp.domain.repo.AdminRepo
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,9 @@ import javax.inject.Inject
 class BaseApplication : Application() {
     @Inject
     lateinit var repoImpl: RepoImpl
+//
+//    @Inject
+//    lateinit var adminRepo: AdminRepo
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e("BaseApplication", "Coroutine exception: ${throwable.message}", throwable)

@@ -2,6 +2,9 @@ package com.example.shopapp.data.repo
 
 import android.content.Context
 import android.net.Uri
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
+import com.example.shopapp.common.CATEGORY_COLLECTION
+import com.example.shopapp.common.PRODUCT_COLLECTION
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.data.di.AWSHelper
 import com.example.shopapp.domain.models.CategoryDataModel
@@ -25,23 +28,27 @@ class AdminRepoImpl @Inject constructor(
         callbackFlow{
             trySend(ResultState.Loading)
             try {
+                TransferNetworkLossHandler.getInstance(context)
                 val objectKey = "product_images/${System.currentTimeMillis()}"
                 awsHelper.uploadFileFromUri(context, imageUri, objectKey).collect { result ->
                     when (result) {
                         is ResultState.Success -> {
                             val imageUrl = result.data
                             val finalProduct = productDataModels.copy(image = imageUrl) // Assuming 'image' field
-
-                            firebaseFirestore.collection("Products")
+                            firebaseFirestore.collection(PRODUCT_COLLECTION)
                                 .add(finalProduct)
-                                .addOnSuccessListener {
-                                    trySend(ResultState.Success("Product added successfully"))
+                                .addOnSuccessListener { documentReference ->
+                                    val productId = documentReference.id
+                                    documentReference.update("productId", productId).addOnSuccessListener {
+                                        trySend(ResultState.Success("Product added successfully"))
+                                    }.addOnFailureListener {
+                                        trySend(ResultState.Error("Failed to update product id"))
+                                    }
                                 }
                                 .addOnFailureListener {
-                                    trySend(ResultState.Error(it.message ?: "Upload failed"))
+                                    trySend(ResultState.Error(it.message ?: "Failed to add product"))
                                 }
                         }
-
                         is ResultState.Error -> trySend(ResultState.Error(result.message))
                         is ResultState.Loading -> trySend(ResultState.Loading)
                     }
@@ -59,7 +66,7 @@ class AdminRepoImpl @Inject constructor(
 
     override fun deleteProduct(productId: String): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
-        val productDocRef = firebaseFirestore.collection("Products").document(productId)
+        val productDocRef = firebaseFirestore.collection(PRODUCT_COLLECTION).document(productId)
         productDocRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
@@ -98,16 +105,22 @@ class AdminRepoImpl @Inject constructor(
     override fun createCategory(context: Context, categoryDataModel: CategoryDataModel, imageUri: Uri): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         try {
+            TransferNetworkLossHandler.getInstance(context)
             val objectKey = "category_images/${System.currentTimeMillis()}"
             awsHelper.uploadFileFromUri(context, imageUri, objectKey).collect { result ->
                 when (result) {
                     is ResultState.Success -> {
                         val imageUrl = result.data
                         val finalCategory = categoryDataModel.copy(image = imageUrl) // Assuming 'image' field
-                        firebaseFirestore.collection("Categories")
+                        firebaseFirestore.collection(CATEGORY_COLLECTION)
                             .add(finalCategory)
-                            .addOnSuccessListener {
-                                trySend(ResultState.Success("Category added successfully"))
+                            .addOnSuccessListener { documentReference ->
+                                val categoryId = documentReference.id
+                                documentReference.update("categoryId", categoryId).addOnSuccessListener {
+                                    trySend(ResultState.Success("Category added successfully"))
+                                }.addOnFailureListener {
+                                    trySend(ResultState.Error("Failed to update category id"))
+                                }
                             }
                             .addOnFailureListener {
                                 trySend(ResultState.Error(it.message ?: "Upload failed"))
@@ -129,7 +142,7 @@ class AdminRepoImpl @Inject constructor(
 
     override fun deleteCategory(categoryId: String): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
-        val categoryDocRef = firebaseFirestore.collection("Categories").document(categoryId)
+        val categoryDocRef = firebaseFirestore.collection(CATEGORY_COLLECTION).document(categoryId)
         categoryDocRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
@@ -161,6 +174,30 @@ class AdminRepoImpl @Inject constructor(
                 } else {
                     trySend(ResultState.Error("Category not found"))
                 }
+            }
+        awaitClose { close() }
+    }
+
+    override fun getProductById(productId: String): Flow<ResultState<ProductsDataModel>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection(PRODUCT_COLLECTION).document(productId).get()
+            .addOnSuccessListener {
+                val product = it.toObject(ProductsDataModel::class.java)
+                trySend(ResultState.Success(product!!))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose { close() }
+    }
+
+    override fun getCategoryById(categoryId: String): Flow<ResultState<CategoryDataModel>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection(CATEGORY_COLLECTION).document(categoryId).get()
+            .addOnSuccessListener {
+                val category = it.toObject(CategoryDataModel::class.java)
+                trySend(ResultState.Success(category!!))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
             }
         awaitClose { close() }
     }

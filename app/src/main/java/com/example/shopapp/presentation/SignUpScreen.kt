@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -47,7 +49,7 @@ import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.Navigation.SubNavigation
 import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.utils.CustomTextField
-import com.example.shopapp.presentation.utils.SuccessAlertBox
+import com.example.shopapp.presentation.utils.BasicAlertBox
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 
 @Composable
@@ -56,6 +58,7 @@ fun SignUpScreen(navController: NavController, viewModel: ShoppingAppViewModel =
     val state = viewModel.signUpScreenState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -70,9 +73,20 @@ fun SignUpScreen(navController: NavController, viewModel: ShoppingAppViewModel =
             Text(text = state.value.errorMessage!!)
         }
     } else if (state.value.userData != null) {
-        SuccessAlertBox(
-            onDismiss = {},
-            onConfirm = { navController.navigate(SubNavigation.MainScreen) })
+        BasicAlertBox(
+            onDismiss = {showDialog = false},
+            customContent = {
+                Button(
+                    onClick = { navController.navigate(SubNavigation.MainScreen) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Go to Home", color = Color.White)
+                }
+            })
     } else {
         Column(
             modifier = Modifier

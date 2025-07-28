@@ -21,7 +21,9 @@ class AdminViewModel @Inject constructor(
     private val updateProductUseCase: UpdateProduct,
     private val deleteProductUseCase: DeleteProduct,
     private val deleteCategoryUseCase: DeleteCategory,
-    private val updateCategoryUseCase: UpdateCategory
+    private val updateCategoryUseCase: UpdateCategory,
+    private val getProductByIdUseCase: GetProductById,
+    private val getCategoryByIdUseCase: GetCategoryById
 ) : ViewModel() {
     private val _createProductState = MutableStateFlow(CreateProductState())
     val createProductState = _createProductState.asStateFlow()
@@ -35,6 +37,10 @@ class AdminViewModel @Inject constructor(
     val deleteCategoryState = _deleteCategoryState.asStateFlow()
     private val _updateCategoryState = MutableStateFlow(UpdateCategoryState())
     val updateCategoryState = _updateCategoryState.asStateFlow()
+    private val _getProductByIdState = MutableStateFlow(GetProductsByIdState())
+    val getProductByIdState = _getProductByIdState.asStateFlow()
+    private val _getCategoryByIdState = MutableStateFlow(GetCategoriesByIdState())
+    val getCategoryByIdState = _getCategoryByIdState.asStateFlow()
 
     fun createProductView(context: Context, productsDataModel: ProductsDataModel, imageUri: Uri) {
         viewModelScope.launch {
@@ -203,6 +209,56 @@ class AdminViewModel @Inject constructor(
             }
         }
     }
+    fun getProductByIdView(productId: String) {
+        viewModelScope.launch {
+            getProductByIdUseCase.getProductsById(productId).collect {
+                when(it){
+                    is ResultState.Loading -> {
+                        _getProductByIdState.value = _getProductByIdState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Error -> {
+                        _getProductByIdState.value = _getProductByIdState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getProductByIdState.value = _getProductByIdState.value.copy(
+                            isLoading = false,
+                            data = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+    fun getCategoryByIdView(categoryId: String) {
+        viewModelScope.launch {
+            getCategoryByIdUseCase.getCategoriesById(categoryId).collect {
+                when(it){
+                    is ResultState.Loading -> {
+                        _getCategoryByIdState.value = _getCategoryByIdState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Error -> {
+                        _getCategoryByIdState.value = _getCategoryByIdState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getCategoryByIdState.value = _getCategoryByIdState.value.copy(
+                            isLoading =  false,
+                            data = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 data class CreateProductState(
@@ -239,4 +295,14 @@ data class DeleteProductState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val data: String? = null
+)
+data class GetProductsByIdState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val data: ProductsDataModel? = null
+)
+data class GetCategoriesByIdState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val data: CategoryDataModel? = null
 )

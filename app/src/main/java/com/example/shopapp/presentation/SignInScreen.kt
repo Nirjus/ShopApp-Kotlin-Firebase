@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,7 +47,7 @@ import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.Navigation.SubNavigation
 import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.utils.CustomTextField
-import com.example.shopapp.presentation.utils.SuccessAlertBox
+import com.example.shopapp.presentation.utils.BasicAlertBox
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 
 @Composable
@@ -67,9 +68,20 @@ fun SignInScreenUI(
             Text(text = state.value.errorMessage!!)
         }
     } else if (state.value.userData != null) {
-        SuccessAlertBox(
-            onConfirm = { navController.navigate(SubNavigation.MainScreen) },
-            onDismiss = {}
+        BasicAlertBox(
+            onDismiss = {showDialog.value = false },
+            customContent = {
+                Button(
+                    onClick = { navController.navigate(SubNavigation.MainScreen) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Go to Home", color = Color.White)
+                }
+            }
         )
     } else {
 

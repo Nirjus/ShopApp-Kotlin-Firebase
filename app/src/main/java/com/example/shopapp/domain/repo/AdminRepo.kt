@@ -25,5 +25,7 @@ interface AdminRepo {
 
     fun updateCategory(categoryDataModel: CategoryDataModel): Flow<ResultState<String>>
     fun deleteCategory(categoryId: String): Flow<ResultState<String>>
+    fun getProductById(productId: String): Flow<ResultState<ProductsDataModel>>
+    fun getCategoryById(categoryId: String): Flow<ResultState<CategoryDataModel>>
 
 }
