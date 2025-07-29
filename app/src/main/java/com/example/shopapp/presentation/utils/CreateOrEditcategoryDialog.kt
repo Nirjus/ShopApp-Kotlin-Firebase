@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImagePainter
@@ -69,6 +71,8 @@ fun CategoryEditDialog(
         }
     }
     val createCategoryState = viewModel.createCategoryState.collectAsStateWithLifecycle()
+    val updateCategoryState = viewModel.updateCategoryState.collectAsStateWithLifecycle()
+    val getCategoryByIdState = viewModel.getCategoryByIdState.collectAsStateWithLifecycle()
 
     var name by remember { mutableStateOf("") }
     var image by remember { mutableStateOf<Uri?>(null) }
@@ -100,15 +104,33 @@ fun CategoryEditDialog(
             // LOGIC
         }
     }
+    LaunchedEffect(getCategoryByIdState.value.data) {
+        if (categoryId != null) {
+            getCategoryByIdState.value.data?.let {
+                name = it.name
+                image = it.image.toUri()
+            }
+        }
+    }
     if(createCategoryState.value.isLoading){
         CircularIndicator()
     }else if(createCategoryState.value.errorMessage != null){
         Toast.makeText(context, createCategoryState.value.errorMessage ?: "Category not created", Toast.LENGTH_SHORT).show()
     }else if(createCategoryState.value.data != null){
-        Toast.makeText(context, "Category created successfully", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, createCategoryState.value.data ?: "Category created successfully", Toast.LENGTH_SHORT).show()
         refreshCategoryListData()
         onDismiss()
-    }else {
+    }
+    if(updateCategoryState.value.isLoading){
+        CircularIndicator()
+    }else if(updateCategoryState.value.errorMessage != null){
+        Toast.makeText(context, updateCategoryState.value.errorMessage ?: "Error in updating category", Toast.LENGTH_SHORT).show()
+    }else if(updateCategoryState.value.data != null){
+        Toast.makeText(context, updateCategoryState.value.data ?: "Category updated successfully", Toast.LENGTH_SHORT).show()
+        refreshCategoryListData()
+        onDismiss()
+    }
+    else {
         BasicAlertDialog(
             onDismissRequest = onDismiss,
             modifier = Modifier.background(shape = RoundedCornerShape(16.dp), color = Color.White),
@@ -162,7 +184,8 @@ fun CategoryEditDialog(
                                     2.dp,
                                     color = colorResource(R.color.purple_300),
                                     shape = RoundedCornerShape(10.dp)
-                                )
+                                ),
+                            contentScale = ContentScale.Crop
                         ) {
                             when (painter.state) {
                                 is AsyncImagePainter.State.Loading -> CircularIndicator()

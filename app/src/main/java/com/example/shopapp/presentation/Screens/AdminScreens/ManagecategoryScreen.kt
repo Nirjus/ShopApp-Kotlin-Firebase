@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,6 +57,7 @@ import coil.compose.AsyncImage
 import com.example.shopapp.R
 import com.example.shopapp.domain.models.CategoryDataModel
 import com.example.shopapp.presentation.Navigation.AdminRoutes
+import com.example.shopapp.presentation.Navigation.Routes
 import com.example.shopapp.presentation.utils.CategoryEditDialog
 import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
@@ -90,16 +92,25 @@ fun ManageCategoryScreenUI(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(R.color.teal_200),
                     titleContentColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { navController.navigate(Routes.ProfileScreen) }) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "Search",
+                            tint = Color.Black
+                        )
+                    }
+                }
             )
         }) { innerPadding ->
-        if(getAllCategoryState.value.isLoading){
+        if (getAllCategoryState.value.isLoading) {
             CircularIndicator()
-        }else if(getAllCategoryState.value.errorMessage != null){
+        } else if (getAllCategoryState.value.errorMessage != null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = getAllCategoryState.value.errorMessage ?: "Something went wrong")
             }
-        }else {
+        } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -142,11 +153,13 @@ fun ManageCategoryScreenUI(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 LazyColumn(
-                    modifier = Modifier.weight(.6f).padding(5.dp),
+                    modifier = Modifier
+                        .weight(.6f)
+                        .padding(5.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(categoryData) { category ->
-                        CategoryCard(category)
+                        CategoryCard(category, refreshCategoryListData = { viewModel.getAllCategories() })
                     }
                 }
             }
@@ -155,8 +168,9 @@ fun ManageCategoryScreenUI(
 }
 
 @Composable
-fun CategoryCard(category: CategoryDataModel) {
+fun CategoryCard(category: CategoryDataModel, refreshCategoryListData : () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    var isEdit by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -167,7 +181,8 @@ fun CategoryCard(category: CategoryDataModel) {
                 model = category.image,
                 contentDescription = "Category Image",
                 modifier = Modifier
-                    .size(50.dp).clip(CircleShape),
+                    .size(50.dp)
+                    .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -189,14 +204,24 @@ fun CategoryCard(category: CategoryDataModel) {
                 ) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
-                        onClick = {  }
+                        onClick = {
+                            isEdit = true
+                            expanded = false
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Delete") },
-                        onClick = {  }
+                        onClick = { expanded = false }
                     )
                 }
             }
         }
+    }
+    if (isEdit) {
+        CategoryEditDialog(
+            onDismiss = { isEdit = false },
+            categoryId = category.categoryId,
+            refreshCategoryListData= refreshCategoryListData)
+
     }
 }

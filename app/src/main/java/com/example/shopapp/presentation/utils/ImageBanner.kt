@@ -82,7 +82,9 @@ fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier) {
 fun Banner(banners: List<BannerDataModels>) {
     val pagerState = rememberPagerState(pageCount = { banners.size })
     val scope = rememberCoroutineScope()
-
+    if (banners.isEmpty()) {
+        return
+    }
     LaunchedEffect(Unit) {
         while (true) {
             delay(1500)

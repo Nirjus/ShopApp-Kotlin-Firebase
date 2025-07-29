@@ -68,8 +68,8 @@ fun GetAllFavouriteProductScreen(
                 title = {
                     Text(
                         "Wish list",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
             )
@@ -86,7 +86,7 @@ fun GetAllFavouriteProductScreen(
                 placeholder = { Text("Search") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "search icon")
                 }

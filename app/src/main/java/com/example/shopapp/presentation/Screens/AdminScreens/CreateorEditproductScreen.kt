@@ -182,7 +182,26 @@ fun CreateOrEditProductScreenUI(
                     Text("Product added in the list, visit now", color = Color.White)
                 }
             }
-        }else {
+        }
+        if(updateProductState.value.isLoading){
+            CircularIndicator()
+        }else if(updateProductState.value.errorMessage != null){
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = updateProductState.value.errorMessage ?: "Something went wrong")
+            }
+        }else if(updateProductState.value.data != null){
+            BasicAlertBox(onDismiss = {}, text = "Product created successfully") {
+                Button(onClick = {navController.navigate(AdminRoutes.ManageProductScreen)},
+                    modifier = Modifier
+                        .fillMaxWidth().height(48.dp),
+                    colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Product updated in the list, visit now", color = Color.White)
+                }
+            }
+        }
+        else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()

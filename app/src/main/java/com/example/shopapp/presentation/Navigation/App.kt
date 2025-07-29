@@ -8,14 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
@@ -51,7 +51,7 @@ import com.example.shopapp.presentation.Screens.AdminScreens.CreateOrEditProduct
 import com.example.shopapp.presentation.Screens.AdminScreens.ManageCategoryScreenUI
 import com.example.shopapp.presentation.Screens.AdminScreens.ManageOrderScreenUI
 import com.example.shopapp.presentation.Screens.AdminScreens.ManageProductScreenUI
-import com.example.shopapp.presentation.Screens.AdminScreens.ManageUserScreenUI
+import com.example.shopapp.presentation.Screens.AdminScreens.ManageUI
 import com.example.shopapp.presentation.Screens.AllCategoriesScreen
 import com.example.shopapp.presentation.Screens.CartScreen
 import com.example.shopapp.presentation.Screens.CheckoutScreen
@@ -90,7 +90,7 @@ fun App(
         AdminRoutes.ManageProductScreen,
         AdminRoutes.ManageCategoryScreen,
         AdminRoutes.ManageOrderScreen,
-        AdminRoutes.ManageUsersScreen
+        AdminRoutes.ManageUI
     )
     LaunchedEffect(currentDestination) {
 
@@ -113,7 +113,7 @@ fun App(
         BottomNavItem("Products", Icons.Default.ShoppingCart, Icons.Outlined.ShoppingCart),
         BottomNavItem("Category", Icons.Default.Menu, Icons.Outlined.Menu),
         BottomNavItem("Orders", Icons.Default.Info, Icons.Outlined.Info),
-        BottomNavItem("Users", Icons.Default.AccountCircle, Icons.Outlined.AccountCircle)
+        BottomNavItem("UI", Icons.Default.Build, Icons.Outlined.Build)
     )
     var startScreen = if (firebaseAuth.currentUser == null) {
         SubNavigation.LoginSignUpScreen
@@ -176,7 +176,7 @@ fun App(
                                             0 -> navController.navigate(AdminRoutes.ManageProductScreen)
                                             1 -> navController.navigate(AdminRoutes.ManageCategoryScreen)
                                             2 -> navController.navigate(AdminRoutes.ManageOrderScreen)
-                                            3 -> navController.navigate(AdminRoutes.ManageUsersScreen)
+                                            3 -> navController.navigate(AdminRoutes.ManageUI)
                                         }
                                     },
                                     imageVector = item.icon,
@@ -236,8 +236,8 @@ fun App(
                     composable<AdminRoutes.ManageOrderScreen> {
                         ManageOrderScreenUI(navController = navController)
                     }
-                    composable<AdminRoutes.ManageUsersScreen> {
-                        ManageUserScreenUI(navController = navController)
+                    composable<AdminRoutes.ManageUI> {
+                        ManageUI(navController = navController)
                     }
                     composable<AdminRoutes.CreateOrEditProductScreen> {
                         var product: AdminRoutes.CreateOrEditProductScreen = it.toRoute()

@@ -11,9 +11,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -57,9 +59,16 @@ fun GetAllProductScreen(
                 title = {
                     Text(
                         "All Products",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge,
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack()}) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "back"
+                        )
+                    }
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -73,7 +82,7 @@ fun GetAllProductScreen(
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
                 placeholder = { Text("Search") },
                 leadingIcon = {
                     Icon(

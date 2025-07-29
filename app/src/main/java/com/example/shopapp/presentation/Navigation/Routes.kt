@@ -25,7 +25,7 @@ sealed class AdminRoutes{
     object ManageOrderScreen
 
     @Serializable
-    object ManageUsersScreen
+    object ManageUI
 
     @Serializable
     data class CreateOrEditProductScreen(val productId: String? = null)

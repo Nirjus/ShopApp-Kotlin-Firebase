@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.example.shopapp.common.ADD_TO_CART
 import com.example.shopapp.common.ADD_TO_FAV
+import com.example.shopapp.common.BANNER_COLLECTION
 import com.example.shopapp.common.CATEGORY_COLLECTION
 import com.example.shopapp.common.PRODUCT_COLLECTION
 import com.example.shopapp.common.ResultState
@@ -323,7 +324,7 @@ class RepoImpl @Inject constructor(
 
     override fun getBanners(): Flow<ResultState<List<BannerDataModels>>> = callbackFlow {
         trySend(ResultState.Loading)
-        firebaseFirestore.collection("banner").get().addOnSuccessListener {
+        firebaseFirestore.collection(BANNER_COLLECTION).get().addOnSuccessListener {
             val banner = it.toObjects(BannerDataModels::class.java)
             trySend(ResultState.Success(banner))
         }.addOnFailureListener {

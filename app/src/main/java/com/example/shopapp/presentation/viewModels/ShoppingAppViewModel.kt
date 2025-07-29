@@ -428,7 +428,31 @@ class ShoppingAppViewModel @Inject constructor(
             }
         }
     }
-
+    fun getAllBanner(){
+        viewModelScope.launch {
+            getBannerUseCase.getBannerUseCase().collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _getBannerState.value = _getBannerState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _getBannerState.value = _getBannerState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getBannerState.value = _getBannerState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
     fun uploadUserProfileImageWithContext(context: Context, uri: Uri) {
         viewModelScope.launch {
             uploadUserProfileImageUseCase.updateUserProfileImages(context, uri).collect {

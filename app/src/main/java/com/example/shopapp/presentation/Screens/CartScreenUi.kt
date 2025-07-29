@@ -66,8 +66,7 @@ fun CartScreen(
                 title = {
                     Text(
                         text = "Shopping Cart",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge,
                     )
                 },
                 navigationIcon = {

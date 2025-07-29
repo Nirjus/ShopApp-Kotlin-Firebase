@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -43,9 +44,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -67,59 +70,60 @@ fun HomeScreen(
     val getAllSuggestedProduct =
         viewModel.getAllSuggestedProductsState.collectAsStateWithLifecycle()
     val getAllSuggestedProductData: List<ProductsDataModel> =
-        getAllSuggestedProduct.value.userData.orEmpty().filterNotNull()
+        getAllSuggestedProduct.value.userData.filterNotNull()
     LaunchedEffect(key1 = Unit) {
         viewModel.getAllSuggestedProduct()
     }
-    if (homeState.isLoading) {
-        CircularIndicator()
-    } else if (homeState.errorMessage != null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Error: " + homeState.errorMessage!!)
-        }
-    } else {
-        Scaffold { innerPadding ->
-            Column(
+
+    Scaffold { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(
+                    rememberScrollState()
+                )
+        ) {
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(
-                        rememberScrollState()
-                    )
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
-                        value = "",
-                        onValueChange = {},
-                        placeholder = { Text("Search products") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search icon"
-                            )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(50.dp),
-                        shape = RoundedCornerShape(9.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color.White,
-                            unfocusedIndicatorColor = Color.Transparent
-                        )
-                    )
-                    IconButton(onClick = {/* Notification handler */ }) {
+                TextField(
+                    value = "",
+                    onValueChange = {},
+                    placeholder = { Text("Search products") },
+                    leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notification icon",
-                            modifier = Modifier.size(30.dp)
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search icon"
                         )
-                    }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(9.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.White,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
+                IconButton(onClick = {/* Notification handler */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notification icon",
+                        modifier = Modifier.size(30.dp)
+                    )
                 }
+            }
+            if (homeState.isLoading) {
+                CircularIndicator()
+            } else if (homeState.errorMessage != null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(homeState.errorMessage!!)
+                }
+            } else {
                 // category section
                 Column {
                     Row(
@@ -130,7 +134,7 @@ fun HomeScreen(
                     ) {
                         Text("Categories", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "See more>",
+                            "See more >",
                             color = colorResource(R.color.purple_300),
                             modifier = Modifier.clickable {
                                 navController.navigate(Routes.AllCategoryScreen)
@@ -139,8 +143,9 @@ fun HomeScreen(
                         )
                     }
                     LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         items(homeState.categories) { category ->
                             CategoryItem(
@@ -155,6 +160,7 @@ fun HomeScreen(
                         }
                     }
                 }
+//                Spacer(modifier = Modifier.size(10.dp))
                 homeState.banners.let { banner ->
                     Banner(banner as List<BannerDataModels>)
                 }
@@ -168,7 +174,7 @@ fun HomeScreen(
                     ) {
                         Text("Flash sells", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "See more>",
+                            "See more >",
                             color = colorResource(id = R.color.purple_300),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.clickable { navController.navigate(Routes.SeeAllProductScreen) })
@@ -224,7 +230,10 @@ fun HomeScreen(
                                     .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Suggested for you", style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    "Suggested for you",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                                 Text(
                                     "See more>",
                                     color = colorResource(id = R.color.purple_300),
@@ -258,8 +267,8 @@ fun HomeScreen(
 fun CategoryItem(imageUrl: String, categoryName: String, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(16.dp)
+        modifier = Modifier.width(65.dp)
+//            .padding(10.dp)
             .clickable { onClick() }) {
         Box(
             modifier = Modifier
@@ -275,7 +284,9 @@ fun CategoryItem(imageUrl: String, categoryName: String, onClick: () -> Unit) {
                     .clip(CircleShape)
             )
         }
-        Text(categoryName, style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(categoryName, style = MaterialTheme.typography.bodySmall,  maxLines = 1,
+            overflow = TextOverflow.Ellipsis,)
     }
 }
 
@@ -286,7 +297,7 @@ fun ProductCard(product: ProductsDataModel, onClick: () -> Unit) {
         modifier = Modifier
             .width(150.dp)
             .clickable { onClick() }
-            .aspectRatio(0.7f),
+            .aspectRatio(0.68f),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
@@ -306,7 +317,10 @@ fun ProductCard(product: ProductsDataModel, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                     overflow = TextOverflow.Ellipsis
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     Text(
                         "Rs.${product.finalPrice}",
                         style = MaterialTheme.typography.titleSmall,
@@ -319,14 +333,15 @@ fun ProductCard(product: ProductsDataModel, onClick: () -> Unit) {
                         textDecoration = TextDecoration.LineThrough,
                         color = Color.Gray
                     )
-
-                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                Row(modifier = Modifier.fillMaxWidth().padding(top = 1.dp)) {
+                   Icon(imageVector = Icons.Default.CheckCircle, contentDescription = "New", tint = Color.Green)
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        "${product.availableUnites} lefts",
+                        "${product.availableUnites} piece lefts",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
-
                 }
             }
         }
