@@ -58,6 +58,7 @@ import coil.compose.AsyncImage
 import com.example.shopapp.R
 import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.presentation.Navigation.Routes
+import com.example.shopapp.presentation.utils.AddBannerDialog
 import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 
@@ -100,21 +101,17 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
                 }
             )
         }) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 10.dp)
-            ) {
-                if(getAllBanner.value.isLoading){
-                    CircularIndicator()
-                }else if(getAllBanner.value.errorMessage != null){
-                    Text(text = getAllBanner.value.errorMessage ?: "Banner is not fetched")
-                }else if(bannersData.isEmpty()){
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("No banner available", textAlign = TextAlign.Center)
-                    }
-                }else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 10.dp)
+        ) {
+            if (getAllBanner.value.isLoading) {
+                CircularIndicator()
+            } else if (getAllBanner.value.errorMessage != null) {
+                Text(text = getAllBanner.value.errorMessage ?: "Banner is not fetched")
+            } else {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -138,7 +135,9 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
                     )
                 }
                 if (showAlert) {
-                    // Alert showing
+                    AddBannerDialog(
+                        onDismiss = { showAlert = false },
+                        refreshBannerListData = { viewModel.getAllBanner() })
                 }
                 Spacer(modifier = Modifier.size(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -147,7 +146,15 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
                     HorizontalDivider()
                 }
                 Spacer(modifier = Modifier.size(16.dp))
-
+                if (bannersData.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "No banner available!",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
                 LazyColumn(
                     modifier = Modifier
                         .weight(.6f)
@@ -155,7 +162,7 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(bannersData) { banner ->
-                        BannerCard(banner, refreshBannerDataList = { })
+                        BannerCard(banner, refreshBannerDataList = { viewModel.getAllBanner() })
                     }
                 }
             }
@@ -166,54 +173,58 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
 @Composable
 fun BannerCard(banner: BannerDataModels, refreshBannerDataList: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var isEdit by remember { mutableStateOf(false) }
+    var isDelete by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
-        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column {
             AsyncImage(
                 model = banner.image,
                 contentDescription = "Category Image",
                 modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape),
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(10.dp)),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "♦ " + banner.name,
-                modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Box {
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More options")
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Edit") },
-                        onClick = {
-                            isEdit = true
-                            expanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Delete") },
-                        onClick = { expanded = false }
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "📜 " + banner.name,
+                    modifier = Modifier.padding(8.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Box {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                expanded = false
+                                isDelete = true
+                            }
+                        )
+                        HorizontalDivider()
+                    }
                 }
             }
         }
     }
-    if(isEdit){
-        // show alert
+    if (isDelete) {
+        AddBannerDialog(
+            onDismiss = { isDelete = false },
+            bannerId = banner.bannerId,
+            refreshBannerListData = refreshBannerDataList
+        )
     }
 }

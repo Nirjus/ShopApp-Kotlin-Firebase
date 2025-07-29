@@ -48,6 +48,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -104,19 +105,19 @@ fun ManageCategoryScreenUI(
                 }
             )
         }) { innerPadding ->
-        if (getAllCategoryState.value.isLoading) {
-            CircularIndicator()
-        } else if (getAllCategoryState.value.errorMessage != null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = getAllCategoryState.value.errorMessage ?: "Something went wrong")
-            }
-        } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(horizontal = 10.dp)
             ) {
+                if (getAllCategoryState.value.isLoading) {
+                    CircularIndicator()
+                } else if (getAllCategoryState.value.errorMessage != null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = getAllCategoryState.value.errorMessage ?: "Something went wrong")
+                    }
+                } else {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -151,7 +152,15 @@ fun ManageCategoryScreenUI(
                     HorizontalDivider()
                 }
                 Spacer(modifier = Modifier.size(16.dp))
-
+                if (categoryData.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "No category available!",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
                 LazyColumn(
                     modifier = Modifier
                         .weight(.6f)
@@ -159,7 +168,9 @@ fun ManageCategoryScreenUI(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(categoryData) { category ->
-                        CategoryCard(category, refreshCategoryListData = { viewModel.getAllCategories() })
+                        CategoryCard(
+                            category,
+                            refreshCategoryListData = { viewModel.getAllCategories() })
                     }
                 }
             }
@@ -168,7 +179,7 @@ fun ManageCategoryScreenUI(
 }
 
 @Composable
-fun CategoryCard(category: CategoryDataModel, refreshCategoryListData : () -> Unit) {
+fun CategoryCard(category: CategoryDataModel, refreshCategoryListData: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var isEdit by remember { mutableStateOf(false) }
     Card(
@@ -221,7 +232,8 @@ fun CategoryCard(category: CategoryDataModel, refreshCategoryListData : () -> Un
         CategoryEditDialog(
             onDismiss = { isEdit = false },
             categoryId = category.categoryId,
-            refreshCategoryListData= refreshCategoryListData)
+            refreshCategoryListData = refreshCategoryListData
+        )
 
     }
 }

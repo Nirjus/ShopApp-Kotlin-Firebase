@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,20 +96,19 @@ fun ManageProductScreenUI(
                 )
             )
         }) { innerPadding ->
-        if(getAllProductsSate.value.isLoading){
-            CircularIndicator()
-        }else if(getAllProductsSate.value.errorMessage != null){
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = getAllProductsSate.value.errorMessage ?: "Something went wrong")
-            }
-        }else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 10.dp)
-//                .verticalScroll(rememberScrollState())
-            ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 10.dp)
+        ) {
+            if (getAllProductsSate.value.isLoading) {
+                CircularIndicator()
+            } else if (getAllProductsSate.value.errorMessage != null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = getAllProductsSate.value.errorMessage ?: "Something went wrong")
+                }
+            } else {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -155,8 +155,19 @@ fun ManageProductScreenUI(
                     HorizontalDivider(modifier = Modifier.weight(1f))
                 }
                 Spacer(modifier = Modifier.size(16.dp))
+                if (productData.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "No product available!",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
                 LazyColumn(
-                    modifier = Modifier.weight(.6f).padding(5.dp),
+                    modifier = Modifier
+                        .weight(.6f)
+                        .padding(5.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(productData) { product ->
@@ -178,7 +189,7 @@ fun ProductItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
-            .clickable(onClick = {navController.navigate(Routes.ProductDetailsScreen(product.productId))}),
+            .clickable(onClick = { navController.navigate(Routes.ProductDetailsScreen(product.productId)) }),
         elevation = CardDefaults.elevatedCardElevation(8.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -222,11 +233,17 @@ fun ProductItem(
                 ) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
-                        onClick = { navController.navigate(AdminRoutes.CreateOrEditProductScreen(product.productId)) }
+                        onClick = {
+                            navController.navigate(
+                                AdminRoutes.CreateOrEditProductScreen(
+                                    product.productId
+                                )
+                            )
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Delete") },
-                        onClick = {  }
+                        onClick = { }
                     )
                 }
             }

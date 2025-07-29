@@ -194,7 +194,6 @@ fun App(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(bottom = if (showUserBottomBar.value) 60.dp else 0.dp)
         ) {
             NavHost(navController = navController, startDestination = startScreen) {
                 navigation<SubNavigation.LoginSignUpScreen>(startDestination = Routes.LoginScreen) {

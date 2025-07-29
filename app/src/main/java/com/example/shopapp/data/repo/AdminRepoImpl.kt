@@ -3,10 +3,12 @@ package com.example.shopapp.data.repo
 import android.content.Context
 import android.net.Uri
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
+import com.example.shopapp.common.BANNER_COLLECTION
 import com.example.shopapp.common.CATEGORY_COLLECTION
 import com.example.shopapp.common.PRODUCT_COLLECTION
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.data.di.AWSHelper
+import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.domain.models.CategoryDataModel
 import com.example.shopapp.domain.models.ProductsDataModel
 import com.example.shopapp.domain.repo.AdminRepo
@@ -198,6 +200,78 @@ class AdminRepoImpl @Inject constructor(
                 trySend(ResultState.Success(category!!))
             }.addOnFailureListener {
                 trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose { close() }
+    }
+
+    override fun addBanner(context: Context, bannerDataModels: BannerDataModels, imageUri: Uri): Flow<ResultState<String>> = callbackFlow {
+        trySend(ResultState.Loading)
+        try{
+            TransferNetworkLossHandler.getInstance(context)
+            val objectKey = "banner_images/${System.currentTimeMillis()}"
+            awsHelper.uploadFileFromUri(context, imageUri, objectKey).collect { result ->
+                when (result) {
+                    is ResultState.Success -> {
+                        val imageUrl = result.data
+                        val finalBanner = bannerDataModels.copy(image = imageUrl) // Assuming 'image' field
+                        firebaseFirestore.collection(BANNER_COLLECTION)
+                            .add(finalBanner)
+                            .addOnSuccessListener { documentReference ->
+                                val bannerId = documentReference.id
+                                documentReference.update("bannerId", bannerId).addOnSuccessListener {
+                                    trySend(ResultState.Success("Banner added successfully"))
+                                    }.addOnFailureListener {
+                                        trySend(ResultState.Error("Failed to update banner id"))
+                                    }
+                            }
+                            .addOnFailureListener {
+                                trySend(ResultState.Error(it.message ?: "Upload failed"))
+                            }
+                    }
+                    is ResultState.Error -> trySend(ResultState.Error(result.message))
+                    is ResultState.Loading -> trySend(ResultState.Loading)
+                }
+            }
+        }catch (e: Exception){
+            trySend(ResultState.Error(e.message ?: "Unexpected error"))
+        }
+        awaitClose { close() }
+    }
+
+    override fun deleteBannerById(bannerId: String): Flow<ResultState<String>> = callbackFlow {
+        trySend(ResultState.Loading)
+        val bannerRef = firebaseFirestore.collection(BANNER_COLLECTION).document(bannerId)
+        bannerRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if(documentSnapshot.exists()){
+                    val banner = documentSnapshot.toObject(CategoryDataModel::class.java)
+                    banner?.image?.let { imageUrl ->
+                        // Extract object key from URL or use a stored key if available
+                        val objectKey = imageUrl.substringAfterLast("/") // This is a basic way, might need adjustment
+                        launch { // Launch a coroutine to collect the flow
+                            awsHelper.deleteFile("banner_images/$objectKey").collectLatest { deleteResult ->
+                                when (deleteResult) {
+                                    is ResultState.Success -> {
+                                        // Image deleted successfully, now delete banner document
+                                        bannerRef.delete()
+                                            .addOnSuccessListener {
+                                                trySend(ResultState.Success("Banner and image deleted successfully"))
+                                            }
+                                            .addOnFailureListener { e ->
+                                                trySend(ResultState.Error(e.message ?: "Failed to delete banner document"))
+                                            }
+                                    }
+                                    is ResultState.Error -> trySend(ResultState.Error(deleteResult.message))
+                                    is ResultState.Loading -> trySend(ResultState.Loading) // Or handle appropriately
+                                }
+                            }
+                        }
+                    }?: bannerRef.delete() // If no image URL, just delete the document
+                        .addOnSuccessListener { trySend(ResultState.Success("Banner deleted successfully (no image to delete)")) }
+                        .addOnFailureListener { e -> trySend(ResultState.Error(e.message ?: "Delete failed")) }
+                }else{
+                    trySend(ResultState.Error("Banner not found"))
+                }
             }
         awaitClose { close() }
     }

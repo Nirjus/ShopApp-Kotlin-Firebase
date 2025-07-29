@@ -75,7 +75,7 @@ fun HomeScreen(
         viewModel.getAllSuggestedProduct()
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -3,6 +3,7 @@ package com.example.shopapp.domain.repo
 import android.content.Context
 import android.net.Uri
 import com.example.shopapp.common.ResultState
+import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.domain.models.CategoryDataModel
 import com.example.shopapp.domain.models.ProductsDataModel
 import kotlinx.coroutines.flow.Flow
@@ -27,5 +28,6 @@ interface AdminRepo {
     fun deleteCategory(categoryId: String): Flow<ResultState<String>>
     fun getProductById(productId: String): Flow<ResultState<ProductsDataModel>>
     fun getCategoryById(categoryId: String): Flow<ResultState<CategoryDataModel>>
-
+    fun addBanner(context: Context, bannerDataModels: BannerDataModels, imageUri: Uri): Flow<ResultState<String>>
+    fun deleteBannerById(bannerId: String): Flow<ResultState<String>>
 }

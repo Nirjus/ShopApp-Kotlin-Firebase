@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.domain.adminUsecase.*
+import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.domain.models.CategoryDataModel
 import com.example.shopapp.domain.models.ProductsDataModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +24,9 @@ class AdminViewModel @Inject constructor(
     private val deleteCategoryUseCase: DeleteCategory,
     private val updateCategoryUseCase: UpdateCategory,
     private val getProductByIdUseCase: GetProductById,
-    private val getCategoryByIdUseCase: GetCategoryById
+    private val getCategoryByIdUseCase: GetCategoryById,
+    private val addBannerUseCase: AddBanner,
+    private val deleteBannerUseCase: DeleteBanner
 ) : ViewModel() {
     private val _createProductState = MutableStateFlow(CreateProductState())
     val createProductState = _createProductState.asStateFlow()
@@ -41,6 +44,10 @@ class AdminViewModel @Inject constructor(
     val getProductByIdState = _getProductByIdState.asStateFlow()
     private val _getCategoryByIdState = MutableStateFlow(GetCategoriesByIdState())
     val getCategoryByIdState = _getCategoryByIdState.asStateFlow()
+    private val _addBannerState = MutableStateFlow(AddBannerState())
+    val addBannerState = _addBannerState.asStateFlow()
+    private val _deleteBannerState = MutableStateFlow(DeleteBannerState())
+    val deleteBannerState = _deleteBannerState.asStateFlow()
 
     fun createProductView(context: Context, productsDataModel: ProductsDataModel, imageUri: Uri) {
         viewModelScope.launch {
@@ -259,6 +266,56 @@ class AdminViewModel @Inject constructor(
             }
         }
     }
+    fun addBannerView(context: Context, bannerDataModels: BannerDataModels, imageUri: Uri) {
+        viewModelScope.launch {
+            addBannerUseCase.addBanners(context, bannerDataModels, imageUri).collect {
+                when (it) {
+                    is ResultState.Error -> {
+                        _addBannerState.value = _addBannerState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _addBannerState.value = _addBannerState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _addBannerState.value = _addBannerState.value.copy(
+                            isLoading = false,
+                            data = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+    fun deleteBannerView(bannerId: String) {
+        viewModelScope.launch {
+            deleteBannerUseCase.deleteBanners(bannerId).collect {
+                when (it) {
+                    is ResultState.Error -> {
+                        _deleteBannerState.value = _deleteBannerState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _deleteBannerState.value = _deleteBannerState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _deleteBannerState.value = _deleteBannerState.value.copy(
+                            isLoading = false,
+                            data = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 data class CreateProductState(
@@ -305,4 +362,16 @@ data class GetCategoriesByIdState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val data: CategoryDataModel? = null
+)
+data class AddBannerState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val data: String? = null
+)
+
+data class DeleteBannerState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val data: String? = null
+
 )
