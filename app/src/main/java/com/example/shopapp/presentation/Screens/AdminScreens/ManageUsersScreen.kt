@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
@@ -58,7 +58,7 @@ import coil.compose.AsyncImage
 import com.example.shopapp.R
 import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.presentation.Navigation.Routes
-import com.example.shopapp.presentation.utils.AddBannerDialog
+import com.example.shopapp.presentation.utils.AddOrDeleteBannerDialog
 import com.example.shopapp.presentation.utils.CircularIndicator
 import com.example.shopapp.presentation.viewModels.ShoppingAppViewModel
 
@@ -93,7 +93,7 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
                 actions = {
                     IconButton(onClick = { navController.navigate(Routes.ProfileScreen) }) {
                         Icon(
-                            imageVector = Icons.Default.ExitToApp,
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                             contentDescription = null,
                             tint = Color.Black
                         )
@@ -135,7 +135,7 @@ fun ManageUI(navController: NavController, viewModel: ShoppingAppViewModel = hil
                     )
                 }
                 if (showAlert) {
-                    AddBannerDialog(
+                    AddOrDeleteBannerDialog(
                         onDismiss = { showAlert = false },
                         refreshBannerListData = { viewModel.getAllBanner() })
                 }
@@ -221,7 +221,7 @@ fun BannerCard(banner: BannerDataModels, refreshBannerDataList: () -> Unit) {
         }
     }
     if (isDelete) {
-        AddBannerDialog(
+        AddOrDeleteBannerDialog(
             onDismiss = { isDelete = false },
             bannerId = banner.bannerId,
             refreshBannerListData = refreshBannerDataList

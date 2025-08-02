@@ -102,7 +102,7 @@ fun CartScreen(
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             text = "Your cat is empty",
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold
                         )
                     }

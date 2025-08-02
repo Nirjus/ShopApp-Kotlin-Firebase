@@ -1,6 +1,6 @@
 package com.example.shopapp.domain.di
 
-import com.example.shopapp.data.di.AWSHelper
+import com.example.shopapp.data.di.AmplifyStorageHelper
 import com.example.shopapp.data.repo.AdminRepoImpl
 import com.example.shopapp.data.repo.RepoImpl
 import com.example.shopapp.domain.repo.AdminRepo
@@ -17,11 +17,11 @@ import dagger.hilt.components.SingletonComponent
 class DomainModule {
 
     @Provides
-    fun provideRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore, awsHelper: AWSHelper): Repo{
+    fun provideRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore, awsHelper: AmplifyStorageHelper): Repo{
         return RepoImpl(firebaseAuth, firebaseFirestore, awsHelper)
     }
     @Provides
-    fun provideAdminRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore, awsHelper: AWSHelper): AdminRepo{
+    fun provideAdminRepo(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore, awsHelper: AmplifyStorageHelper): AdminRepo{
         return AdminRepoImpl(firebaseAuth, firebaseFirestore,awsHelper)
     }
 }

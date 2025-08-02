@@ -9,7 +9,7 @@ import com.example.shopapp.common.CATEGORY_COLLECTION
 import com.example.shopapp.common.PRODUCT_COLLECTION
 import com.example.shopapp.common.ResultState
 import com.example.shopapp.common.USER_COLLECTION
-import com.example.shopapp.data.di.AWSHelper
+import com.example.shopapp.data.di.AmplifyStorageHelper
 import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.domain.models.CartDataModels
 import com.example.shopapp.domain.models.CategoryDataModel
@@ -27,7 +27,7 @@ import javax.inject.Inject
 class RepoImpl @Inject constructor(
     var firebaseAuth: FirebaseAuth,
     var firebaseFirestore: FirebaseFirestore,
-    private val awsHelper: AWSHelper
+    private val amplifyStorageHelper: AmplifyStorageHelper
 ) : Repo {
     override fun registerUserWithEmailAndPassword(userData: UserData): Flow<ResultState<String>> =
         callbackFlow {
@@ -106,13 +106,13 @@ class RepoImpl @Inject constructor(
         callbackFlow {
             trySend(ResultState.Loading)
             try {
-                val userId =
-                    firebaseAuth.currentUser?.uid ?: throw Exception("User not authenticated")
+                val userId = firebaseAuth.currentUser?.uid ?: throw Exception("User not authenticated")
                 val objectKey = "profile_images/$userId/${System.currentTimeMillis()}"
-                awsHelper.uploadFileFromUri(context, uri, objectKey).collect { result ->
+
+                amplifyStorageHelper.uploadFileFromUri(uri, objectKey).collect { result ->
                     when (result) {
                         is ResultState.Success -> {
-                            // Update user profile with S3 URL
+                            // Update user profile with Amplify URL
                             firebaseFirestore.collection(USER_COLLECTION)
                                 .document(userId)
                                 .update("image", result.data)
@@ -120,14 +120,9 @@ class RepoImpl @Inject constructor(
                                     trySend(ResultState.Success(result.data))
                                 }
                                 .addOnFailureListener { e ->
-                                    trySend(
-                                        ResultState.Error(
-                                            e.message ?: "Failed to update profile"
-                                        )
-                                    )
+                                    trySend(ResultState.Error(e.message ?: "Failed to update profile"))
                                 }
                         }
-
                         is ResultState.Error -> trySend(ResultState.Error(result.message))
                         is ResultState.Loading -> trySend(ResultState.Loading)
                     }
@@ -351,16 +346,11 @@ class RepoImpl @Inject constructor(
                 }
             awaitClose { close() }
         }
-
-    suspend fun initializeAWS() {
-        awsHelper.initAWS()
-    }
-
     fun deleteFileFromS3(objectKey: String): Flow<ResultState<Boolean>> {
-        return awsHelper.deleteFile(objectKey)
+        return amplifyStorageHelper.deleteFile(objectKey)
     }
 
-    fun getS3FileUrl(objectKey: String): String {
-        return awsHelper.getFileUrl(objectKey)
+    fun getS3FileUrl(objectKey: String): Flow<ResultState<String>> {
+        return amplifyStorageHelper.getFileUrl(objectKey)
     }
 }

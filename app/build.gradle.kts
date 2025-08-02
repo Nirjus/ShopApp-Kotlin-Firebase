@@ -84,8 +84,8 @@ dependencies {
     implementation("com.razorpay:checkout:1.6.40")
     //custom bottom nev bar
     implementation("com.canopas.compose-animated-navigationbar:bottombar:1.0.1")
-    // AWS SDK
-    implementation("com.amazonaws:aws-android-sdk-s3:2.73.0")
-    implementation("com.amazonaws:aws-android-sdk-core:2.73.0")
-    implementation("com.amazonaws:aws-android-sdk-mobile-client:2.73.0")
+    // AWS Amplify
+    implementation("com.amplifyframework:aws-storage-s3:2.14.5")
+    implementation("com.amplifyframework:aws-auth-cognito:2.14.5")
+    implementation("com.amplifyframework:core:2.14.5")
 }

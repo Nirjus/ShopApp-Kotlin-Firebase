@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
@@ -148,7 +149,7 @@ fun CreateOrEditProductScreenUI(
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Arrow back",
                         tint = Color.White
                     )
@@ -163,14 +164,7 @@ fun CreateOrEditProductScreenUI(
         if (createProductState.value.isLoading) {
             CircularIndicator()
         } else if (createProductState.value.errorMessage != null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = createProductState.value.errorMessage ?: "Error in product creating",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Red,
-                    textAlign = TextAlign.Center
-                )
-            }
+           BasicAlertBox(onDismiss = {}, success = false, text = createProductState.value.errorMessage ?: "Something went wrong")
         } else if (createProductState.value.data != null) {
             BasicAlertBox(onDismiss = {}, text = "Product created successfully") {
                 Button(onClick = {navController.navigate(AdminRoutes.ManageProductScreen)},
@@ -186,9 +180,7 @@ fun CreateOrEditProductScreenUI(
         if(updateProductState.value.isLoading){
             CircularIndicator()
         }else if(updateProductState.value.errorMessage != null){
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = updateProductState.value.errorMessage ?: "Something went wrong")
-            }
+            BasicAlertBox(onDismiss = {}, success = false, text = updateProductState.value.errorMessage ?: "Something went wrong")
         }else if(updateProductState.value.data != null){
             BasicAlertBox(onDismiss = {}, text = "Product created successfully") {
                 Button(onClick = {navController.navigate(AdminRoutes.ManageProductScreen)},

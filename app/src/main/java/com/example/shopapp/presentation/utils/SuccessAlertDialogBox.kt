@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,8 +32,9 @@ import com.example.shopapp.R
 @Composable
 fun BasicAlertBox(
     onDismiss: () -> Unit,
+    success: Boolean = true,
     text: String = "Congratulation, you have \n completed your registration",
-    customContent: @Composable () -> Unit
+    customContent: @Composable () -> Unit? = {null}
 ) {
     BasicAlertDialog(
         onDismissRequest = onDismiss,
@@ -51,9 +53,9 @@ fun BasicAlertBox(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Success",
-                        tint = Color.Green,
+                        imageVector = if(success) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription =null,
+                        tint = if(success) Color.Green else Color.Red,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -61,7 +63,7 @@ fun BasicAlertBox(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Success",
+                    text = if(success) "Success" else "Error",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = colorResource(R.color.purple_500)
@@ -72,7 +74,8 @@ fun BasicAlertBox(
                 Text(
                     text = text,
                     textAlign = TextAlign.Center,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    color = colorResource(R.color.purple_300)
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

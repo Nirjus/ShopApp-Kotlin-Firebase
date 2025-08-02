@@ -28,7 +28,7 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideAWSHelper(@ApplicationContext context: Context): AWSHelper {
-        return AWSHelper(context)
+    fun provideAWSHelper(@ApplicationContext context: Context): AmplifyStorageHelper {
+        return AmplifyStorageHelper(context)
     }
 }

@@ -2,12 +2,11 @@ package com.example.shopapp.data.repo
 
 import android.content.Context
 import android.net.Uri
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
 import com.example.shopapp.common.BANNER_COLLECTION
 import com.example.shopapp.common.CATEGORY_COLLECTION
 import com.example.shopapp.common.PRODUCT_COLLECTION
 import com.example.shopapp.common.ResultState
-import com.example.shopapp.data.di.AWSHelper
+import com.example.shopapp.data.di.AmplifyStorageHelper
 import com.example.shopapp.domain.models.BannerDataModels
 import com.example.shopapp.domain.models.CategoryDataModel
 import com.example.shopapp.domain.models.ProductsDataModel
@@ -24,15 +23,14 @@ import javax.inject.Inject
 class AdminRepoImpl @Inject constructor(
     var firebaseAuth: FirebaseAuth,
     var firebaseFirestore: FirebaseFirestore,
-    private val awsHelper: AWSHelper
+    private val amplifyStorageHelper: AmplifyStorageHelper
 ): AdminRepo {
     override fun createProduct(context: Context, productDataModels: ProductsDataModel, imageUri: Uri): Flow<ResultState<String>> =
         callbackFlow{
             trySend(ResultState.Loading)
             try {
-                TransferNetworkLossHandler.getInstance(context)
                 val objectKey = "product_images/${System.currentTimeMillis()}"
-                awsHelper.uploadFileFromUri(context, imageUri, objectKey).collect { result ->
+                amplifyStorageHelper.uploadFileFromUri(imageUri, objectKey).collect { result ->
                     when (result) {
                         is ResultState.Success -> {
                             val imageUrl = result.data
@@ -75,9 +73,9 @@ class AdminRepoImpl @Inject constructor(
                     val product = documentSnapshot.toObject(ProductsDataModel::class.java)
                     product?.image?.let { imageUrl ->
                         // Extract object key from URL or use a stored key if available
-                        val objectKey = imageUrl.substringAfterLast("/") // This is a basic way, might need adjustment
+                        val objectKey = "product_images/${imageUrl.substringAfterLast("/")}" // This is a basic way, might need adjustment
                         launch { // Launch a coroutine to collect the flow
-                            awsHelper.deleteFile("product_images/$objectKey").collectLatest { deleteResult ->
+                            amplifyStorageHelper.deleteFile(objectKey).collectLatest { deleteResult ->
                                 when (deleteResult) {
                                     is ResultState.Success -> {
                                         // Image deleted successfully, now delete product document
@@ -107,9 +105,8 @@ class AdminRepoImpl @Inject constructor(
     override fun createCategory(context: Context, categoryDataModel: CategoryDataModel, imageUri: Uri): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         try {
-            TransferNetworkLossHandler.getInstance(context)
             val objectKey = "category_images/${System.currentTimeMillis()}"
-            awsHelper.uploadFileFromUri(context, imageUri, objectKey).collect { result ->
+            amplifyStorageHelper.uploadFileFromUri(imageUri, objectKey).collect { result ->
                 when (result) {
                     is ResultState.Success -> {
                         val imageUrl = result.data
@@ -153,7 +150,7 @@ class AdminRepoImpl @Inject constructor(
                         // Extract object key from URL or use a stored key if available
                         val objectKey = imageUrl.substringAfterLast("/") // This is a basic way, might need adjustment
                         launch { // Launch a coroutine to collect the flow
-                            awsHelper.deleteFile("category_images/$objectKey").collectLatest { deleteResult ->
+                            amplifyStorageHelper.deleteFile(objectKey).collectLatest { deleteResult ->
                                 when (deleteResult) {
                                     is ResultState.Success -> {
                                         // Image deleted successfully, now delete category document
@@ -207,9 +204,8 @@ class AdminRepoImpl @Inject constructor(
     override fun addBanner(context: Context, bannerDataModels: BannerDataModels, imageUri: Uri): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         try{
-            TransferNetworkLossHandler.getInstance(context)
             val objectKey = "banner_images/${System.currentTimeMillis()}"
-            awsHelper.uploadFileFromUri(context, imageUri, objectKey).collect { result ->
+            amplifyStorageHelper.uploadFileFromUri(imageUri, objectKey).collect { result ->
                 when (result) {
                     is ResultState.Success -> {
                         val imageUrl = result.data
@@ -244,12 +240,12 @@ class AdminRepoImpl @Inject constructor(
         bannerRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if(documentSnapshot.exists()){
-                    val banner = documentSnapshot.toObject(CategoryDataModel::class.java)
+                    val banner = documentSnapshot.toObject(BannerDataModels::class.java)
                     banner?.image?.let { imageUrl ->
                         // Extract object key from URL or use a stored key if available
                         val objectKey = imageUrl.substringAfterLast("/") // This is a basic way, might need adjustment
                         launch { // Launch a coroutine to collect the flow
-                            awsHelper.deleteFile("banner_images/$objectKey").collectLatest { deleteResult ->
+                            amplifyStorageHelper.deleteFile(objectKey).collectLatest { deleteResult ->
                                 when (deleteResult) {
                                     is ResultState.Success -> {
                                         // Image deleted successfully, now delete banner document

@@ -2,6 +2,10 @@ package com.example.shopapp
 
 import android.app.Application
 import android.util.Log
+import com.amplifyframework.AmplifyException
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin
 import com.example.shopapp.data.repo.RepoImpl
 import com.example.shopapp.domain.repo.AdminRepo
 import dagger.hilt.android.HiltAndroidApp
@@ -17,8 +21,8 @@ class BaseApplication : Application() {
     @Inject
     lateinit var repoImpl: RepoImpl
 //
-//    @Inject
-//    lateinit var adminRepo: AdminRepo
+    @Inject
+    lateinit var adminRepo: AdminRepo
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e("BaseApplication", "Coroutine exception: ${throwable.message}", throwable)
@@ -30,22 +34,23 @@ class BaseApplication : Application() {
         super.onCreate()
         Log.d("BaseApplication", "onCreate called")
         try {
-            initializeAWS()
+            initializeAmplify()
             Log.d("BaseApplication", "initializeAWS called")
         } catch (e: Exception) {
             Log.e("BaseApplication", "Exception in onCreate: ${e.message}", e)
         }
     }
 
-    private fun initializeAWS() {
-        applicationScope.launch {
-            Log.d("BaseApplication", "Starting AWS initialization")
-            try {
-                repoImpl.initializeAWS()
-                Log.d("BaseApplication", "AWS initialized successfully")
-            } catch (e: Exception) {
-                Log.e("BaseApplication", "Failed to initialize AWS: ${e.message}", e)
-            }
+    private fun initializeAmplify() {
+        try {
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.addPlugin(AWSS3StoragePlugin())
+            Amplify.configure(applicationContext)
+        } catch (error: AmplifyException) {
+            Log.e("BaseApplication", "Could not initialize Amplify", error)
+        } catch (e: Exception) {
+            // Catch any other unexpected error during plugin addition or configuration
+            Log.e("BaseApplication", "Unexpected error during Amplify initialization: ${e.message}", e)
         }
     }
 }
