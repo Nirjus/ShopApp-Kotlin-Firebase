@@ -2,10 +2,14 @@ package com.example.shopapp.data.di
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
+import com.amplifyframework.AmplifyException
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.options.StorageRemoveOptions
 import com.amplifyframework.storage.options.StorageUploadFileOptions
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin
 import com.example.shopapp.common.ResultState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +18,17 @@ import java.io.File
 import javax.inject.Inject
 
 class AmplifyStorageHelper @Inject constructor(private val context: Context) {
-
+     fun initializeAmplify() {
+        try {
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.addPlugin(AWSS3StoragePlugin())
+            Amplify.configure(context)
+        } catch (error: AmplifyException) {
+            Log.e("BaseApplication", "Could not initialize Amplify", error)
+        } catch (e: Exception) {
+            Log.e("BaseApplication", "Unexpected error during Amplify initialization: ${e.message}", e)
+        }
+    }
     fun uploadFileFromUri(uri: Uri, key: String): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         try {

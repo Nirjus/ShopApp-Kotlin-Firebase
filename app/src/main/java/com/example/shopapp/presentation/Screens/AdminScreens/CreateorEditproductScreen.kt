@@ -164,23 +164,23 @@ fun CreateOrEditProductScreenUI(
         if (createProductState.value.isLoading) {
             CircularIndicator()
         } else if (createProductState.value.errorMessage != null) {
-           BasicAlertBox(onDismiss = {}, success = false, text = createProductState.value.errorMessage ?: "Something went wrong")
+            Toast.makeText(context, createProductState.value.errorMessage ?: "Some thing went wrong", Toast.LENGTH_SHORT).show()
         } else if (createProductState.value.data != null) {
-            BasicAlertBox(onDismiss = {}, text = "Product created successfully") {
-                Button(onClick = {navController.navigate(AdminRoutes.ManageProductScreen)},
-                    modifier = Modifier
-                        .fillMaxWidth().height(48.dp),
-                    colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Product added in the list, visit now", color = Color.White)
+                BasicAlertBox(onDismiss = {}, text = "Product created successfully") {
+                    Button(onClick = {navController.navigate(AdminRoutes.ManageProductScreen)},
+                        modifier = Modifier
+                            .fillMaxWidth().height(48.dp),
+                        colors = ButtonDefaults.buttonColors(colorResource(R.color.purple_300)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Product added in the list, visit now", color = Color.White)
+                    }
                 }
-            }
         }
         if(updateProductState.value.isLoading){
             CircularIndicator()
         }else if(updateProductState.value.errorMessage != null){
-            BasicAlertBox(onDismiss = {}, success = false, text = updateProductState.value.errorMessage ?: "Something went wrong")
+            Toast.makeText(context, updateProductState.value.errorMessage ?: "Some thing went wrong", Toast.LENGTH_SHORT).show()
         }else if(updateProductState.value.data != null){
             BasicAlertBox(onDismiss = {}, text = "Product created successfully") {
                 Button(onClick = {navController.navigate(AdminRoutes.ManageProductScreen)},

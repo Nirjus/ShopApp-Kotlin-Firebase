@@ -346,6 +346,9 @@ class RepoImpl @Inject constructor(
                 }
             awaitClose { close() }
         }
+    suspend fun initializeAWS() {
+        amplifyStorageHelper.initializeAmplify()
+    }
     fun deleteFileFromS3(objectKey: String): Flow<ResultState<Boolean>> {
         return amplifyStorageHelper.deleteFile(objectKey)
     }
